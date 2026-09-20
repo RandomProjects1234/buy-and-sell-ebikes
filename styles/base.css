@@ -1,0 +1,245 @@
+/* Tokens, reset and page layout. Components live in ui.css, motion in fx.css. */
+
+:root {
+  --bg: #0b0e14;
+  --bg-raised: #141926;
+  --bg-card: #171d2b;
+  --bg-card-hi: #1e2637;
+  --line: #262f42;
+  --line-soft: #1d2434;
+
+  --text: #e8ecf5;
+  --text-dim: #9aa3b5;
+  --text-faint: #6f7889;
+
+  --gold: #ffd166;
+  --gold-deep: #e0a72e;
+  --green: #49c97a;
+  --blue: #3d9dff;
+  --purple: #b06bff;
+  --orange: #ffab2e;
+  --red: #ff4d6d;
+  --cyan: #8ef6ff;
+
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(1200px 600px at 12% -10%, rgba(255, 209, 102, .08), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(61, 157, 255, .07), transparent 55%),
+    var(--bg);
+}
+
+button { font: inherit; color: inherit; }
+h1, h2, h3 { margin: 0; line-height: 1.15; }
+p { margin: 0; }
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 10px 14px 20px;
+  gap: 12px;
+}
+
+/* --- top bar --------------------------------------------------------------- */
+
+.topbar {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, rgba(30, 38, 55, .9), rgba(20, 25, 38, .9));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 8px;
+  z-index: 40;
+  backdrop-filter: blur(6px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: transform .12s ease, background .12s ease;
+}
+.brand:hover { background: rgba(255, 255, 255, .05); }
+.brand:active { transform: scale(.96); }
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #201a06;
+  background: linear-gradient(140deg, var(--gold), var(--gold-deep));
+  box-shadow: 0 0 18px rgba(255, 209, 102, .35);
+}
+.brand-mark .icon { width: 20px; height: 20px; stroke-width: 2.2; }
+
+.brand-text { display: flex; flex-direction: column; line-height: 1; text-align: left; }
+.brand-text b { font-size: 14px; letter-spacing: .06em; }
+.brand-text i { font-size: 10px; letter-spacing: .28em; color: var(--gold); font-style: normal; }
+
+.wallet { display: flex; flex-direction: column; line-height: 1.1; }
+.wallet-money { font: 700 clamp(20px, 3.4vw, 30px)/1 var(--mono); color: var(--gold); letter-spacing: -.02em; }
+.wallet-rate { font: 600 12px var(--mono); color: var(--text-faint); margin-top: 3px; }
+
+.hud-pills { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.topbar-buttons { display: flex; gap: 6px; }
+
+/* --- main layout ----------------------------------------------------------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  flex: 1;
+  min-height: 0;
+}
+
+.stage {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(120% 90% at 50% 12%, rgba(255, 209, 102, .10), transparent 62%),
+    linear-gradient(180deg, var(--bg-raised), #10141d);
+  padding: 14px 14px 18px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: sticky;
+  top: 86px;
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 70px;
+  background: linear-gradient(180deg, transparent, rgba(255, 209, 102, .05));
+  pointer-events: none;
+}
+
+.stage-art { position: relative; z-index: 1; pointer-events: none; }
+.stage-art svg { display: block; width: 100%; height: auto; }
+
+.stage-click {
+  position: absolute;
+  inset: 14px 14px 96px;
+  z-index: 2;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.stage-click:active { background: rgba(255, 209, 102, .06); }
+
+.stage-info { position: relative; z-index: 3; text-align: center; margin-top: 4px; }
+.stage-info h1 { font-size: clamp(18px, 2.6vw, 24px); letter-spacing: -.01em; }
+
+.stage-specs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 8px;
+  font: 600 12px var(--mono);
+  color: var(--text-dim);
+}
+.stage-specs b { color: var(--text); }
+.stage-specs .hot b { color: var(--gold); }
+
+.stage-hint {
+  position: relative;
+  z-index: 3;
+  margin-top: 10px;
+  text-align: center;
+  font: 600 12px var(--mono);
+  color: var(--text-faint);
+}
+.stage-hint b { color: var(--green); }
+
+/* --- workspace ------------------------------------------------------------- */
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 10px;
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(23, 29, 43, .95), rgba(16, 20, 29, .95));
+  padding: 16px;
+  box-shadow: var(--shadow);
+  min-height: 60vh;
+}
+
+/* --- responsive ------------------------------------------------------------ */
+
+@media (max-width: 980px) {
+  .app { padding: 8px 10px 26px; }
+  .layout { grid-template-columns: 1fr; }
+  /* relative, not static: .stage-click is absolutely positioned inside it and
+     would otherwise size itself against the whole page and swallow every tap */
+  .stage { position: relative; top: auto; }
+  .topbar {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "brand wallet buttons" "pills pills pills";
+    row-gap: 8px;
+  }
+  .brand { grid-area: brand; }
+  .wallet { grid-area: wallet; align-items: flex-end; }
+  .hud-pills { grid-area: pills; justify-content: flex-start; }
+  .topbar-buttons { grid-area: buttons; }
+  .panel { min-height: 50vh; padding: 12px; }
+}
+
+@media (max-width: 560px) {
+  .tab-label { display: none; }
+  .tab { padding: 10px 12px; }
+  .wallet-money { font-size: 22px; }
+}

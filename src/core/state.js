@@ -8,6 +8,29 @@ import { STARTER_BLUEPRINTS } from '../data/blueprints.js';
 
 export const SAVE_VERSION = 1;
 
+/**
+ * The bike you already own when the game opens. It can be displaced from the
+ * showroom by something better, but it is never for sale - it is the one that
+ * got you here.
+ */
+export function starterBike() {
+  return {
+    uid: 'starter_hyper_b',
+    bp: 'hyper_b',
+    name: 'Hyper B',
+    kind: 'bike',
+    tier: 0,
+    quality: 1,
+    value: 260,
+    speed: 20,
+    range: 18,
+    accel: 8.2,
+    parts: {},
+    starter: true,
+    at: Date.now(),
+  };
+}
+
 export function defaultState() {
   const now = Date.now();
   return {
@@ -21,8 +44,8 @@ export function defaultState() {
 
     parts: {},          // partId -> count
     fragments: 0,       // Kirkin schematic fragments
-    garage: [],         // finished builds waiting to be sold
-    showroom: null,     // the build on display (boosts click income)
+    garage: [],           // finished builds waiting to be sold
+    showroom: starterBike(), // the build on display (boosts click income)
 
     upgrades: {},       // upgradeId -> true
     workers: {},        // roleId -> count
