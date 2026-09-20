@@ -1,0 +1,85 @@
+// ---------------------------------------------------------------------------
+// CRATES - the gacha end of the business
+// ---------------------------------------------------------------------------
+// `table` is a list of [partTier, weight] pairs. Weights are relative, so a new
+// crate only needs plausible numbers, not a normalised distribution.
+
+export const CRATES = [
+  {
+    id: 'scrap_crate',
+    name: 'Scrap Crate',
+    short: 'Scrap',
+    tier: 0,
+    cost: 25,
+    drops: 2,
+    color: '#8b94a3',
+    table: [[0, 92], [1, 8]],
+    unlock: { lifetime: 0 },
+    desc: 'A milk crate of parts from a man called Big Dave. No refunds, no receipts, no Dave.',
+  },
+  {
+    id: 'parts_bin',
+    name: 'Parts Bin',
+    short: 'Bin',
+    tier: 1,
+    cost: 700,
+    drops: 3,
+    color: '#49c97a',
+    table: [[0, 30], [1, 60], [2, 10]],
+    unlock: { lifetime: 2500 },
+    desc: 'Shop clear-out stock. Mostly usable. Occasionally something with a warranty card still in it.',
+  },
+  {
+    id: 'perf_case',
+    name: 'Performance Case',
+    short: 'Case',
+    tier: 2,
+    cost: 22000,
+    drops: 3,
+    color: '#3d9dff',
+    table: [[1, 28], [2, 62], [3, 10]],
+    unlock: { lifetime: 120000 },
+    desc: 'Foam-lined, nitrogen-flushed, and heavier than the courier expected.',
+  },
+  {
+    id: 'proto_vault',
+    name: 'Prototype Vault',
+    short: 'Vault',
+    tier: 3,
+    cost: 750000,
+    drops: 4,
+    color: '#b06bff',
+    table: [[2, 26], [3, 63], [4, 11]],
+    unlock: { lifetime: 3.5e6 },
+    desc: 'Failed development mules from a company that no longer legally exists. Their loss.',
+  },
+  {
+    id: 'anomaly_crate',
+    name: 'Anomaly Crate',
+    short: 'Anomaly',
+    tier: 4,
+    cost: 35000000,
+    drops: 4,
+    color: '#ffab2e',
+    fragmentChance: 0.0018,
+    table: [[3, 24], [4, 63], [5, 13]],
+    unlock: { lifetime: 2.5e8 },
+    desc: 'Arrives humming. The courier will not make eye contact and has never been paid.',
+  },
+  {
+    id: 'black_site',
+    name: 'Black Site Pallet',
+    short: 'Pallet',
+    tier: 5,
+    cost: 8e9,
+    drops: 5,
+    color: '#ff4d6d',
+    fragmentChance: 0.022,
+    table: [[4, 32], [5, 68]],
+    hidden: true,
+    unlock: { secret: true },
+    desc: 'You were not supposed to find this listing. Whoever Kirkin is, they ship from here.',
+  },
+];
+
+export const CRATE_BY_ID = Object.fromEntries(CRATES.map((c) => [c.id, c]));
