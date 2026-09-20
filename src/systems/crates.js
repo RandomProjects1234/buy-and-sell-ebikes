@@ -3,7 +3,7 @@
 import { state, addPart } from '../core/state.js';
 import { CRATES, CRATE_BY_ID } from '../data/crates.js';
 import { PARTS, partsOfTier, TIERS } from '../data/parts.js';
-import { weightedPick, pick, chance } from '../core/rng.js';
+import { weightedPick, chance } from '../core/rng.js';
 import { crateCost, crateLuck, fragmentLuck, spend } from './economy.js';
 import { emit, EVENTS } from '../core/events.js';
 import { unlockSecret } from './unlocks.js';
@@ -28,12 +28,27 @@ export function bestAffordableCrate() {
   return best;
 }
 
+/**
+ * Which part comes out, given a tier. Slots you are short of are weighted up:
+ * without this, an early player can open six crates and still not own a single
+ * battery, which reads as the game being broken rather than unlucky.
+ */
+function pickPart(tier) {
+  const ids = partsOfTier(tier);
+  const perSlot = {};
+  for (const id of Object.keys(state.parts)) {
+    const part = PARTS[id];
+    if (part) perSlot[part.slot] = (perSlot[part.slot] || 0) + state.parts[id];
+  }
+  const entries = ids.map((id) => ({ id, weight: 1 / (1 + (perSlot[PARTS[id].slot] || 0)) }));
+  return weightedPick(entries).id;
+}
+
 function rollDrop(crate) {
   const table = crate.table.map(([tier, weight]) => ({ tier, weight }));
   let tier = weightedPick(table).tier;
   if (chance(crateLuck())) tier = Math.min(MAX_TIER, tier + 1);
-  const ids = partsOfTier(tier);
-  return pick(ids);
+  return pickPart(tier);
 }
 
 /**

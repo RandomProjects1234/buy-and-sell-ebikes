@@ -13,7 +13,7 @@ import { addMoney, incomeScale, wheelieMult, wheelieZoneBonus, wheelieSaves } fr
 import { fmtMoney, fmtNum } from '../core/format.js';
 import { play } from '../core/audio.js';
 import { emit, EVENTS } from '../core/events.js';
-import { burst, shake, floatText } from '../ui/fx.js';
+import { burst, shake } from '../ui/fx.js';
 
 export const RUN_SECONDS = 40;
 const ZONE_LOW = 34;
