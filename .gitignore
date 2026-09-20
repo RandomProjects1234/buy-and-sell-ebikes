@@ -1,0 +1,12 @@
+# This repo IS the deployable site — there is no build step and nothing to ignore
+# from a bundler. These are just the usual local/editor leftovers.
+node_modules/
+__pycache__/
+*.pyc
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+.claude/
