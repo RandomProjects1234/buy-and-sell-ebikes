@@ -27,10 +27,10 @@ export const ROLES = [
     rate: 0.16,           // salvage operations per second
     cost: 30000, growth: 1.18,
     unlock: { lifetime: 250000 },
-    desc: 'Melts your junk pile down into fewer, better parts. 8 in, 1 out, one tier up.',
+    desc: 'Melts your junk pile down into fewer, better parts. 24 in, 1 out, one tier up.',
     managerCost: 5e7,
     managerName: 'Yard Foreman',
-    managerDesc: 'Salvage ratio improves from 8:1 to 5:1 and never touches parts a recipe needs.',
+    managerDesc: 'Salvage ratio improves from 24:1 to 16:1, which finally makes melting stock profitable.',
   },
   {
     id: 'wrench',
