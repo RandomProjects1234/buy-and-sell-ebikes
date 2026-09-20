@@ -37,9 +37,10 @@ export function fmtMoney(value, opts) {
   return (n < 0 ? '-$' : '$') + fmtNum(Math.abs(n), opts);
 }
 
-/** "$12.4K / sec" */
+/** "$12.4K/s". Trailing fractions of a cent read as noise, so they round to 0. */
 export function fmtRate(value) {
-  return fmtMoney(value) + '/s';
+  const n = Number(value) || 0;
+  return (Math.abs(n) < 0.005 ? '$0' : fmtMoney(n)) + '/s';
 }
 
 /** 0.0725 -> "+7.3%" */
