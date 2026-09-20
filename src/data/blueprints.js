@@ -115,7 +115,7 @@ export const BLUEPRINTS = [
     id: 'stark_vark', name: 'Stark Vark', kind: 'bike', tier: 3, req: B6(3),
     extra: [{ slot: 'frame', tier: 3, count: 1 }, { slot: 'wheels', tier: 3, count: 1 }, { slot: 'brakes', tier: 3, count: 1 }],
     cash: 250000,
-    base: 5.4e6, speed: 96, range: 131, accel: 2.0, demandFloor: 0.42,
+    base: 4.6e6, speed: 96, range: 131, accel: 2.0, demandFloor: 0.42,
     unlock: { lifetime: 9e6 },
     desc: 'THE FASTEST BIKE EVER BUILT (in the brochure). Gold flake, scissor kickstand, three extra parts of chrome nobody asked for. Sells high. Costs higher.',
   },
