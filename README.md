@@ -10,6 +10,8 @@ scooter or an e-bike at the workbench → flip it → reinvest in better crates,
 staff and facilities → automate the whole chain → take the company public and
 do it all again with a permanent multiplier.
 
+**[Play it in your browser](https://randomprojects1234.github.io/buy-and-sell-ebikes/)**
+
 No build step, no dependencies, no server. It is HTML, CSS and ES modules.
 
 ![MIT licensed](https://img.shields.io/badge/license-MIT-green)
@@ -18,6 +20,8 @@ No build step, no dependencies, no server. It is HTML, CSS and ES modules.
 ---
 
 ## Play it
+
+In a browser: <https://randomprojects1234.github.io/buy-and-sell-ebikes/>
 
 **Locally** (any static server works; this one just disables caching):
 
