@@ -19,18 +19,19 @@ export function demandOf(bpId) {
 }
 
 export function salePrice(item) {
-  if (!item) return 0;
+  if (!item || item.starter) return 0;
   return item.value * demandOf(item.bp) * sellMult();
 }
 
-export function sellItem(itemUid, { rate = 1, silent = false } = {}) {
+export function sellItem(itemUid, { rate = 1, silent = false, source = 'sale' } = {}) {
   const idx = state.garage.findIndex((it) => it.uid === itemUid);
   if (idx < 0) return 0;
   const item = state.garage[idx];
+  if (item.starter) return 0;   // the first Hyper B is not for sale
   const amount = salePrice(item) * rate;
 
   state.garage.splice(idx, 1);
-  addMoney(amount, 'sale');
+  addMoney(amount, source);
   state.sold[item.bp] = (state.sold[item.bp] || 0) + 1;
   state.stats.sales += 1;
   if (amount > state.stats.bestSale) state.stats.bestSale = amount;
@@ -45,7 +46,7 @@ export function sellItem(itemUid, { rate = 1, silent = false } = {}) {
 /** Sell the whole floor. Returns total cash. */
 export function sellAll({ rate = 1, filterKind = null } = {}) {
   const targets = state.garage
-    .filter((it) => !filterKind || it.kind === filterKind)
+    .filter((it) => !it.starter && (!filterKind || it.kind === filterKind))
     .map((it) => it.uid);
   let total = 0;
   for (const id of targets) total += sellItem(id, { rate, silent: true });

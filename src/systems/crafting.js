@@ -67,6 +67,14 @@ function extraPlan(bp, used) {
   return plan;
 }
 
+/** Where a recipe's sacrificial build is: the floor, or the showroom window. */
+function findDonor(bpId) {
+  const idx = state.garage.findIndex((it) => it.bp === bpId);
+  if (idx >= 0) return { where: 'garage', idx };
+  if (state.showroom && state.showroom.bp === bpId) return { where: 'showroom', idx: -1 };
+  return null;
+}
+
 export function validate(bp, selection) {
   const used = {};
   for (const req of slotReqs(bp)) {
@@ -88,9 +96,11 @@ export function validate(bp, selection) {
   if (bp.fragments && state.fragments < bp.fragments) {
     return { ok: false, reason: `Needs ${bp.fragments} schematic fragments` };
   }
-  if (bp.consumes && !state.garage.some((it) => it.bp === bp.consumes)) {
+  // The donor build counts whether it is on the floor or in the window - being
+  // punished for displaying your best bike would be a nasty surprise.
+  if (bp.consumes && !findDonor(bp.consumes)) {
     const donor = BP_BY_ID[bp.consumes];
-    return { ok: false, reason: `Needs a finished ${donor ? donor.name : bp.consumes} in the garage` };
+    return { ok: false, reason: `Needs a finished ${donor ? donor.name : bp.consumes}` };
   }
   if (bp.cash && state.money < bp.cash) return { ok: false, reason: 'Cannot cover the assembly fee' };
 
@@ -135,8 +145,9 @@ export function craft(bpId, selection) {
   for (const partId of check.extras) removePart(partId, 1);
   if (bp.fragments) state.fragments -= bp.fragments;
   if (bp.consumes) {
-    const idx = state.garage.findIndex((it) => it.bp === bp.consumes);
-    if (idx >= 0) state.garage.splice(idx, 1);
+    const donor = findDonor(bp.consumes);
+    if (donor && donor.where === 'garage') state.garage.splice(donor.idx, 1);
+    else if (donor) state.showroom = null;
   }
 
   const q = quality(bp, selection);
@@ -162,7 +173,10 @@ export function craft(bpId, selection) {
   if (item.value > state.stats.bestBuild) state.stats.bestBuild = item.value;
 
   emit(EVENTS.CRAFTED, { item, blueprint: bp });
-  if (bp.tier >= 5 || bp.hidden) {
+  // Only the FIRST of each milestone build takes over the screen - once the
+  // Wrenches are mass-producing nuclear bikes, confetti every 10 seconds would
+  // be a punishment rather than a reward.
+  if ((bp.tier >= 5 || bp.hidden) && state.crafted[bp.id] === 1) {
     emit(EVENTS.BIG_WIN, {
       text: bp.name.toUpperCase(),
       sub: bp.hidden ? 'It should not exist. It is in your garage.' : 'A working nuclear engine bike. Somehow.',
