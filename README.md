@@ -63,6 +63,12 @@ it any time from the gear icon.
 | **Index** | The catalogue: every build, part and crate in the game, with what each recipe needs and what you are holding. Things you have not met yet stay redacted. |
 | **Network** | Multiplayer rooms (see below). |
 
+**The ladder.** Scrap hacks → parody commuters → performance builds → the
+exotics (including one very shiny trap) → the **Vark Hunter** that exists to
+beat it → **Hypertech**: Stark Vark GT, Tungsten Bull, Carbon Ghost and the
+Tesseract TX flagship → nuclear engine bikes at 3,000 mph. 26 builds in all,
+plus two that are not in any catalogue.
+
 **Scooters vs bikes.** Scooters take four parts and flip fast and cheap - they
 are the money loop. E-bikes take six, cost more and are worth more, and they
 are what you put in the showroom window. There is a tier-three bike that looks
