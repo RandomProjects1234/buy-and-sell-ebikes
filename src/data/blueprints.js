@@ -120,6 +120,15 @@ export const BLUEPRINTS = [
     desc: 'THE FASTEST BIKE EVER BUILT (in the brochure). Gold flake, scissor kickstand, three extra parts of chrome nobody asked for. Sells high. Costs higher.',
   },
 
+  {
+    id: 'vark_hunter', name: 'Vark Hunter', kind: 'bike', tier: 3,
+    req: { frame: 3, motor: 4, battery: 3, wheels: 3, brakes: 3, controller: 3 },
+    cash: 400000,
+    base: 2.6e7, speed: 118, range: 158, accel: 1.9,
+    unlock: { lifetime: 1.1e7 },
+    desc: 'Built by a workshop that got tired of people buying Stark Varks. One Hypertech motor in an honest exotic frame, and it eats them alive on the ring road.',
+  },
+
   // --- Tier 4: hypertech ----------------------------------------------------
   {
     id: 'hoverlite', name: 'Hoverlite ZG', kind: 'scooter', tier: 4, req: S4(4),
@@ -138,6 +147,38 @@ export const BLUEPRINTS = [
     base: 1.4e9, speed: 268, range: 460, accel: 0.9,
     unlock: { lifetime: 7.2e8 },
     desc: 'So black the autofocus gives up. Ships with its own non-disclosure agreement.',
+  },
+
+  {
+    id: 'stark_vark_gt', name: 'Stark Vark GT', kind: 'bike', tier: 4, req: B6(4),
+    cash: 4e6,
+    base: 2.4e8, speed: 238, range: 402, accel: 1.05,
+    unlock: { lifetime: 1.8e8 },
+    desc: 'The apology. Same badge, none of the gold flake, and every part underneath it is real this time. The people who bought the original are furious.',
+  },
+  {
+    id: 'tungsten_bull', name: 'Tungsten Bull', kind: 'bike', tier: 4, req: B6(4),
+    extra: [{ slot: 'frame', tier: 4, count: 1 }, { slot: 'brakes', tier: 4, count: 1 }],
+    cash: 9e6,
+    base: 4.4e8, speed: 206, range: 540, accel: 0.94,
+    unlock: { lifetime: 4.5e8 },
+    desc: 'Twice the frame, twice the brakes, and torque figures that unseat riders who were not listening. Tows a caravan. Has towed a caravan.',
+  },
+  {
+    id: 'carbon_ghost', name: 'Carbon Ghost', kind: 'bike', tier: 4,
+    req: { frame: 4, motor: 4, battery: 4, wheels: 5, brakes: 4, controller: 4 },
+    cash: 2.5e7,
+    base: 1.1e9, speed: 294, range: 438, accel: 0.84,
+    unlock: { lifetime: 9e8 },
+    desc: 'Mag-lev wheels on a hypertech chassis. Makes no noise at all, which is legally a problem in eleven countries.',
+  },
+  {
+    id: 'tesseract_tx', name: 'Tesseract TX', kind: 'bike', tier: 4,
+    req: { frame: 4, motor: 4, battery: 5, wheels: 4, brakes: 4, controller: 5 },
+    cash: 1.4e8,
+    base: 7.2e9, speed: 418, range: 980, accel: 0.68,
+    unlock: { lifetime: 6e9 },
+    desc: 'A singularity cell and a causality governor bolted to a bicycle. The flagship of the hypertech era, and the last thing built before somebody said the word fusion out loud.',
   },
 
   // --- Tier 5: nuclear engine bikes ----------------------------------------
