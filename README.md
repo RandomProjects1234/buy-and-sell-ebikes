@@ -12,7 +12,8 @@ do it all again with a permanent multiplier.
 
 **[Play it in your browser](https://randomprojects1234.github.io/buy-and-sell-ebikes/)**
 
-No build step, no dependencies, no server. It is HTML, CSS and ES modules.
+No build step, no server, and no dependencies unless you open a multiplayer
+room. It is HTML, CSS and ES modules.
 
 ![MIT licensed](https://img.shields.io/badge/license-MIT-green)
 ![No build step](https://img.shields.io/badge/build-none-blue)
@@ -35,28 +36,49 @@ Then open <http://localhost:3497>. Windows users can double-click
 It needs to be served over `http://` rather than opened as a `file://` URL,
 because the game is loaded as ES modules.
 
+## The screen
+
+Three columns, in the Cookie Clicker shape:
+
+- **Left** - your bank, your income per second, and the bike you click. The
+  bike in the showroom window multiplies every click, so a better build makes
+  your hands worth more. Under it sits your shop rank and a one-line nudge
+  telling a new player what to do next.
+- **Middle** - tabs for the things you *do*: Crates, Workbench, Garage,
+  Wheelie, Awards, Network and IPO.
+- **Right** - the **Store**. Upgrade tiles across the top (hover for what they
+  do), then one list of buildings: staff and facilities together, with
+  **x1 / x10 / x100 / Max** buying. Nothing worth buying is hidden behind a tab.
+  The `+` on a building row opens its details, its config, and its manager.
+
 ## How to play
 
-| Tab | What it does |
+| Where | What it does |
 | --- | --- |
-| **Crates** | Spend money on crates. Better crates roll better part tiers: Scrap → Standard → Performance → Exotic → Hypertech → Nuclear. |
-| **Workbench** | Pick a blueprint, fit one part per slot, build it. Better parts than the recipe demands raise **quality**, which raises the sale price. Surplus junk can be salvaged into the tier above. |
-| **Garage** | Sell finished builds, or put one in the showroom window - the bike on display multiplies every click for as long as it is there. |
-| **Upgrades** | One-off permanent buys: click value, sale price, crate luck, staff speed, wheelie payout. |
-| **Staff** | Four roles automate one stage each. Five of a role unlocks its **manager**, which changes how that stage works, not just how fast. |
-| **Facilities** | Bike farms that print parts of a fixed tier forever. Useless without Wrenches to build with them - that is the mid-game trade-off. |
+| **Crates** | Spend money on crates. Better crates roll better part tiers: Scrap → Standard → Performance → Exotic → Hypertech → Nuclear. Drops are nudged toward the slots you are short of. |
+| **Workbench** | Pick a blueprint, fit one part per slot, build it. Parts better than the recipe demands raise **quality**, which raises the sale price. Surplus junk salvages into the tier above at 12:1. |
+| **Garage** | Sell finished builds, or put one in the showroom window. |
+| **Store → upgrades** | One-off permanent buys: click value, sale price, crate luck, staff speed, wheelie payout. |
+| **Store → staff** | Four roles automate one stage each. Three of a role unlocks its **manager**, which changes how that stage works, not just how fast. |
+| **Store → facilities** | Bike farms that print parts of a fixed tier forever. Worth little without Wrenches to build with them - that is the mid-game trade-off. |
 | **Wheelie** | A 40 second skill minigame on the shop treadmill (see below). |
+| **Awards** | 38 badges. Each one is worth +1% to every dollar you make, forever. |
+| **Network** | Multiplayer rooms (see below). |
 | **IPO** | Prestige. Wind the company up, keep the reputation. |
 
 **Scooters vs bikes.** Scooters take four parts and flip fast and cheap - they
 are the money loop. E-bikes take six, cost more and are worth more, and they
-are what you actually put in the showroom window. There is a tier-three bike
-that looks like the best thing in the shop and is not; working out which one is
-part of the fun.
+are what you put in the showroom window. There is a tier-three bike that looks
+like the best thing in the shop and is not; working out which one is part of
+the fun.
 
-**Demand.** Selling the same model over and over saturates its market. Demand
-sags with each sale and recovers over about a minute, which nudges you to
-diversify or move up a tier instead of spamming one blueprint forever.
+### The golden spanner
+
+Every minute or two a gold-plated 15mm spanner drifts across the screen for
+fourteen seconds. Catch it for one of: **Frenzy** (7x everything for 45s),
+**Click Frenzy** (77x per click for 13s), a cash **Windfall**, a **Hot Streak**
+on crate luck, twelve **free crates**, or a two minute **Golden Hour**. In a
+multiplayer room, everyone else gets 2x for 25 seconds when you catch one.
 
 ### Wheelie mode
 
@@ -73,15 +95,31 @@ Your bike is on a treadmill. **Hold** anywhere on the canvas (or hold `Space` /
 The payout scales off how much money you are making elsewhere, so a good run is
 worth riding at any point in the game rather than being a minute-one novelty.
 
+### Multiplayer
+
+The **Network** tab hosts or joins a room with a five letter code. There is no
+server: one player hosts and everyone else connects straight to them over
+WebRTC, with the host relaying messages to the rest of the room.
+
+- A live leaderboard of every shop in the room - lifetime earnings, income per
+  second, showroom bike, awards, shares.
+- A shared feed of what everyone is doing.
+- **Post a build** straight into another player's garage.
+- Golden spanners are shared: catching one boosts the whole room.
+
+PeerJS loads from a CDN the first time someone opens a room, so single player
+still works with no network at all. It is a game for people you know - nothing
+is validated against cheating, and the room code is the whole security model.
+
 ### Prestige
 
 Once a run has earned enough, the IPO tab offers **shares**
-(`floor(sqrt(run earnings / 10M))`). Going public wipes money, parts, builds,
+(`floor(sqrt(run earnings / 1M))`). Going public wipes money, parts, builds,
 staff, facilities and upgrades. It keeps every blueprint you have discovered,
-your lifetime stats, and the shares - each share is +3% to every dollar you
-earn, forever. Shares also buy permanent perks: seed money on every restart,
-staff that follow you to the new company, keeping your showroom bike, a longer
-offline cap, and so on.
+your awards, your lifetime stats, and the shares - each share is +5% to every
+dollar you earn, forever. Shares also buy permanent perks: seed money on every
+restart, staff that follow you to the new company, keeping your showroom bike,
+a longer offline cap, and so on.
 
 ### Secrets
 
@@ -95,12 +133,32 @@ supposed to be able to order.
   rattles at 25 and 60 if you are on the right track.
 - **Black Site Pallet** - appears in the crate shop once you have found your
   first Kirkin schematic fragment. Fragments drop from Anomaly Crates at about
-  0.18%, and from the pallet itself at 2.2%.
+  0.4%, and from the pallet itself at 5%.
 - **Kirkin G4** - collect four fragments to learn the recipe. Building it needs
   six Nuclear parts, a $200B assembly fee, and it *consumes a finished Kirkin
   G2* - from the garage or straight out of the showroom window.
 
 </details>
+
+## Sound
+
+The game ships 18 real sound files in `audio/` - a socket wrench ratchet on
+every click, a till drawer and bell on a sale, splintering wood when a crate
+opens, a reactor spin-up when a nuclear bike comes together, metal clatter when
+you loop a wheelie.
+
+They are not downloads: `tools/make_sounds.py` synthesises each one from
+layered transients, filtered noise, inharmonic metal partials and a short room,
+so every asset in the repo is originally ours. Regenerate them with:
+
+```bash
+py -3.13 tools/make_sounds.py
+```
+
+Short percussive cues stay as small WAVs because mp3 decoders pad the start by
+a few milliseconds, which you can hear on a click; longer cues are mp3. 204KB
+for the whole set. If a file fails to load, that cue falls back to a
+synthesised WebAudio voice rather than going silent.
 
 ## Saving
 
@@ -133,8 +191,10 @@ __BSE.wheelie.snapshot();
 ## Tech stack
 
 Vanilla JavaScript ES modules, plain CSS, inline SVG, one `<canvas>` for the
-minigame. No framework, no bundler, no dependencies, no network calls. Python's
-`http.server` is used for local development only.
+minigame. No framework, no bundler, no build step. The only third party code is
+PeerJS, and only if you open a multiplayer room. Python's `http.server` is used
+for local development; numpy and ffmpeg are used once, offline, to bake the
+sound files.
 
 A few things worth knowing if you are reading the source:
 
@@ -144,7 +204,8 @@ A few things worth knowing if you are reading the source:
   throttled, so the worker drives the sim and takes over drawing if rAF goes
   quiet.
 - **Panels render to HTML strings** and are only swapped into the DOM when the
-  markup actually changed, never mid-click and never while a `<select>` is open.
+  markup actually changed, never mid-click and never while a `<select>` or a
+  text box has focus.
 - **Every multiplier resolves in `src/systems/economy.js`.** Systems ask it for
   the final number rather than reading upgrade data, so balancing is one file.
 
@@ -159,6 +220,7 @@ Everything craftable, droppable or purchasable is plain data in `src/data/`:
 | `crates.js` | a new crate and its loot table |
 | `upgrades.js` | a new upgrade; the `effect` keys are documented at the top of the file |
 | `staff.js` | staff roles, facilities and IPO perks |
+| `achievements.js` | a new award; `test(state)` decides when it fires |
 
 Part ids are structural (`motor_t3_b`), so renaming a part never breaks an
 existing save.
@@ -167,14 +229,19 @@ existing save.
 
 ```
 index.html
-styles/          base (tokens + layout), ui (components), fx (motion)
+audio/           18 generated sound effects
+styles/          base (tokens + layout), ui (components), store (the CC
+                 furniture), fx (motion)
+tools/           make_sounds.py - bakes audio/ from scratch
 src/
   main.js        boot + the master tick
   core/          state, save/load, events, formatting, rng, clock, audio, debug
-  data/          parts, blueprints, crates, upgrades, staff - pure data
+  data/          parts, blueprints, crates, upgrades, staff, achievements
   systems/       economy, crates, crafting, salvage, market, automation,
-                 prestige, unlocks - all DOM-free
-  ui/            render shell, dom helpers, icons, bike art, fx, panels/
+                 buffs, achievements, prestige, unlocks - all DOM-free
+  net/           room.js - peer to peer multiplayer
+  ui/            render shell, store column, dom helpers, icons, bike art,
+                 fx, panels/
   minigame/      wheelie.js
 ```
 

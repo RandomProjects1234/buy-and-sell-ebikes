@@ -228,6 +228,11 @@ p { margin: 0; }
 @media (max-width: 980px) {
   .app { padding: 8px 10px 26px; }
   .layout { grid-template-columns: 1fr; }
+  /* On one column the store goes directly under the bike: buying is the thing
+     you do most, and it should not be below a screenful of panel. */
+  .stage { order: 1; }
+  .store { order: 2; }
+  .workspace { order: 3; }
   /* relative, not static: .stage-click is absolutely positioned inside it and
      would otherwise size itself against the whole page and swallow every tap */
   .stage { position: relative; top: auto; }
