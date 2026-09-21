@@ -8,6 +8,8 @@ import { state, hasUpgrade, hasPerk } from '../core/state.js';
 import { UPGRADES } from '../data/upgrades.js';
 import { SHARE_BONUS } from '../data/staff.js';
 import { emit, EVENTS } from '../core/events.js';
+import { buffIncomeMult, buffClickMult, buffLuck } from './buffs.js';
+import { achievementBonus } from './achievements.js';
 
 const BASE_CLICK = 1;
 
@@ -29,23 +31,27 @@ function prodEffect(key) {
   return total;
 }
 
-/** Permanent multiplier from IPO shares. Applies to literally all income. */
+/**
+ * Everything that multiplies every dollar: IPO shares, awards, and whatever
+ * golden spanner buff is running.
+ */
 export function globalMult() {
-  return 1 + SHARE_BONUS * (state.prestige.lifetimeShares || 0);
+  const shares = 1 + SHARE_BONUS * (state.prestige.lifetimeShares || 0);
+  return shares * achievementBonus() * buffIncomeMult();
 }
 
 /** How much the bike on display adds to each click. */
 export function showroomBonus() {
   const bike = state.showroom;
   if (!bike) return 1;
-  const boost = Math.pow(Math.max(0, bike.value), 0.34) / 9;
+  const boost = Math.pow(Math.max(0, bike.value), 0.36) / 8;
   return 1 + boost * prodEffect('showroomMult');
 }
 
 export function clickValue() {
   const flat = BASE_CLICK + sumEffect('clickAdd');
   const perk = hasPerk('muscle_memory') ? 3 : 1;
-  return flat * prodEffect('clickMult') * perk * showroomBonus() * globalMult();
+  return flat * prodEffect('clickMult') * perk * showroomBonus() * globalMult() * buffClickMult();
 }
 
 export function sellMult() {
@@ -60,7 +66,7 @@ export function crateCost(crate) {
 
 /** Chance for a crate drop to roll one part tier higher than the table said. */
 export function crateLuck() {
-  return Math.min(0.85, sumEffect('luck'));
+  return Math.min(0.9, sumEffect('luck') + buffLuck());
 }
 
 export function autoMult() {
@@ -76,7 +82,7 @@ export function offlineCapHours() {
 }
 
 export function demandFloor(bp) {
-  const base = bp && bp.demandFloor != null ? bp.demandFloor : 0.55;
+  const base = bp && bp.demandFloor != null ? bp.demandFloor : 0.78;
   return Math.min(0.95, base + sumEffect('demandFloor'));
 }
 

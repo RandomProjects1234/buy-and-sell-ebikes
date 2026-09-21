@@ -16,13 +16,13 @@ import { emit, EVENTS } from '../core/events.js';
 import { burst, shake } from '../ui/fx.js';
 
 export const RUN_SECONDS = 40;
-const ZONE_LOW = 34;
-const ZONE_HIGH = 62;
-const CRASH_ANGLE = 88;
-const GRAVITY = 96;        // deg/s^2 pulling the nose down
-const THROTTLE = 168;      // deg/s^2 from the motor
+const ZONE_LOW = 26;
+const ZONE_HIGH = 70;
+const CRASH_ANGLE = 93;
+const GRAVITY = 80;        // deg/s^2 pulling the nose down
+const THROTTLE = 148;      // deg/s^2 from the motor
 const DAMPING = 0.985;
-const MAX_MULT = 14;
+const MAX_MULT = 16;
 
 const game = {
   phase: 'idle',           // idle | running | crashed | done
@@ -107,10 +107,10 @@ function zone() {
   return { low: ZONE_LOW - pad, high: ZONE_HIGH + pad };
 }
 
-// A flawless 40 second run scores about 17k. Dividing by this makes that worth
-// roughly 8x the player's current income stake, so the rig always beats idling
-// for those 40 seconds without ever replacing the main loop.
-const SCORE_PER_STAKE = 2000;
+// A flawless 40 second run scores about 19k. Dividing by this makes that worth
+// roughly 17x the player's current income stake, so the rig is always worth the
+// 40 seconds without ever replacing the main loop.
+const SCORE_PER_STAKE = 1100;
 
 export function payoutFor(score) {
   return incomeScale() * (score / SCORE_PER_STAKE) * wheelieMult();

@@ -10,8 +10,8 @@ import { PARTS, partsOfTier, TIERS } from '../data/parts.js';
 import { pick } from '../core/rng.js';
 import { emit, EVENTS } from '../core/events.js';
 
-export const BASE_RATIO = 24;
-export const MANAGER_RATIO = 16;
+export const BASE_RATIO = 12;
+export const MANAGER_RATIO = 8;
 const MAX_TIER = TIERS.length - 1;
 
 export function salvageRatio() {

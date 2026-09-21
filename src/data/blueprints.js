@@ -48,7 +48,7 @@ export const BLUEPRINTS = [
   {
     id: 'commutr_7', name: 'Commutr 7', kind: 'bike', tier: 0, req: { frame: 0, motor: 1, battery: 0, wheels: 0, brakes: 0, controller: 0 },
     base: 900, speed: 24, range: 26, accel: 7.4,
-    unlock: { lifetime: 900 },
+    unlock: { lifetime: 405 },
     desc: 'Beige. Dependable. Sold exclusively to people who own two umbrellas.',
   },
 
@@ -56,25 +56,25 @@ export const BLUEPRINTS = [
   {
     id: 'kick_n_go', name: "Kick 'n' Go XL", kind: 'scooter', tier: 1, req: S4(1),
     base: 3900, speed: 25, range: 22, accel: 8.0,
-    unlock: { lifetime: 4000 },
+    unlock: { lifetime: 1800 },
     desc: 'Twice the deck, twice the buyers who should not be on it.',
   },
   {
     id: 'radrunna', name: 'RadRunna 4', kind: 'bike', tier: 1, req: B6(1),
     base: 4500, speed: 28, range: 45, accel: 5.6,
-    unlock: { lifetime: 9000 },
+    unlock: { lifetime: 4050 },
     desc: 'Fat tires, milk crate on the back, buyer swears it is for groceries.',
   },
   {
     id: 'super_37', name: 'Super 37', kind: 'bike', tier: 1, req: { frame: 1, motor: 1, battery: 1, wheels: 1, brakes: 1, controller: 2 },
     base: 14000, speed: 32, range: 48, accel: 4.9,
-    unlock: { lifetime: 25000 },
+    unlock: { lifetime: 11250 },
     desc: 'Moped styling, bicycle paperwork, permanent look of mild mischief.',
   },
   {
     id: 'lectrik_xp', name: 'Lectrik XP', kind: 'bike', tier: 1, req: { frame: 1, motor: 2, battery: 1, wheels: 1, brakes: 1, controller: 1 },
     base: 22000, speed: 38, range: 62, accel: 4.2,
-    unlock: { lifetime: 70000 },
+    unlock: { lifetime: 31500 },
     desc: 'Sold direct to consumer, assembled by a consumer, returned by a consumer.',
   },
 
@@ -82,19 +82,19 @@ export const BLUEPRINTS = [
   {
     id: 'razr_sting', name: 'Razr Sting', kind: 'scooter', tier: 2, req: S4(2),
     base: 120000, speed: 48, range: 40, accel: 4.4,
-    unlock: { lifetime: 160000 },
+    unlock: { lifetime: 72000 },
     desc: 'Aluminium deck, motorcycle brain. Rental fleets buy these by the pallet.',
   },
   {
     id: 'voltage_vx2', name: 'Voltage VX2', kind: 'bike', tier: 2, req: B6(2),
     base: 140000, speed: 55, range: 78, accel: 3.4,
-    unlock: { lifetime: 320000 },
+    unlock: { lifetime: 144000 },
     desc: 'First build where the parts cost more than the bike you learned on.',
   },
   {
     id: 'sur_ronin', name: 'Sur-Ronin X', kind: 'bike', tier: 2, req: { frame: 2, motor: 3, battery: 2, wheels: 2, brakes: 2, controller: 2 },
     base: 520000, speed: 71, range: 90, accel: 2.8,
-    unlock: { lifetime: 1.2e6 },
+    unlock: { lifetime: 540000 },
     desc: 'Dirt bike shaped hole in the law. Every buyer says it is for private land.',
   },
 
@@ -102,13 +102,13 @@ export const BLUEPRINTS = [
   {
     id: 'turbo_scoot', name: 'Turbo Scoot X', kind: 'scooter', tier: 3, req: S4(3),
     base: 3.1e6, speed: 86, range: 74, accel: 2.6,
-    unlock: { lifetime: 4e6 },
+    unlock: { lifetime: 1.8e6 },
     desc: 'Carbon deck, race brakes, and a warning label written by a lawyer who quit.',
   },
   {
     id: 'grid_hammer', name: 'Grid Hammer', kind: 'bike', tier: 3, req: B6(3),
     base: 3.6e6, speed: 92, range: 124, accel: 2.2,
-    unlock: { lifetime: 7e6 },
+    unlock: { lifetime: 3.2e6 },
     desc: 'Ugly, brutal, and the best money-per-part in the shop. Builders know.',
   },
   {
@@ -116,7 +116,7 @@ export const BLUEPRINTS = [
     extra: [{ slot: 'frame', tier: 3, count: 1 }, { slot: 'wheels', tier: 3, count: 1 }, { slot: 'brakes', tier: 3, count: 1 }],
     cash: 250000,
     base: 4.6e6, speed: 96, range: 131, accel: 2.0, demandFloor: 0.42,
-    unlock: { lifetime: 9e6 },
+    unlock: { lifetime: 4e6 },
     desc: 'THE FASTEST BIKE EVER BUILT (in the brochure). Gold flake, scissor kickstand, three extra parts of chrome nobody asked for. Sells high. Costs higher.',
   },
 
@@ -124,19 +124,19 @@ export const BLUEPRINTS = [
   {
     id: 'hoverlite', name: 'Hoverlite ZG', kind: 'scooter', tier: 4, req: S4(4),
     base: 1.5e8, speed: 190, range: 320, accel: 1.4,
-    unlock: { lifetime: 2.2e8 },
+    unlock: { lifetime: 9.9e7 },
     desc: 'Hovers four millimetres. Enough to dodge every scooter regulation written.',
   },
   {
     id: 'ion_reaper', name: 'Ion Reaper', kind: 'bike', tier: 4, req: B6(4),
     base: 1.7e8, speed: 214, range: 380, accel: 1.1,
-    unlock: { lifetime: 4e8 },
+    unlock: { lifetime: 1.8e8 },
     desc: 'Silent, matte, and it pulls hard enough to reorganise your lunch.',
   },
   {
     id: 'vanta_rail', name: 'Vanta Rail', kind: 'bike', tier: 4, req: { frame: 4, motor: 4, battery: 4, wheels: 4, brakes: 4, controller: 5 },
     base: 1.4e9, speed: 268, range: 460, accel: 0.9,
-    unlock: { lifetime: 1.6e9 },
+    unlock: { lifetime: 7.2e8 },
     desc: 'So black the autofocus gives up. Ships with its own non-disclosure agreement.',
   },
 
@@ -146,7 +146,7 @@ export const BLUEPRINTS = [
     exact: { motor: 'motor_t5_a' },
     cash: 2e9,
     base: 3.6e10, speed: 860, range: 9000, accel: 0.6,
-    unlock: { lifetime: 4e10 },
+    unlock: { lifetime: 1.8e10 },
     desc: 'A fusion core on a kick scooter. The safety report is one word, twice.',
   },
   {
@@ -154,7 +154,7 @@ export const BLUEPRINTS = [
     exact: { motor: 'motor_t5_a', frame: 'frame_t5_a' },
     cash: 5e9,
     base: 5.5e10, speed: 3000, range: 12000, accel: 0.31,
-    unlock: { lifetime: 9e10 },
+    unlock: { lifetime: 4e10 },
     desc: 'Three thousand miles an hour on a bicycle. The frame is one atom thick and the motor is a star. Do not lean it against anything you like.',
   },
   {
@@ -162,7 +162,7 @@ export const BLUEPRINTS = [
     exact: { motor: 'motor_t5_b', battery: 'battery_t5_b', brakes: 'brakes_t5_a' },
     cash: 4e10,
     base: 2.6e11, speed: 4800, range: 44000, accel: 0.18,
-    unlock: { lifetime: 9e11 },
+    unlock: { lifetime: 4e11 },
     desc: 'Antimatter drive, singularity cell, graviton anchors. Accelerates hard enough that the rider arrives slightly younger.',
   },
 

@@ -51,6 +51,7 @@ export function doPrestige() {
     },
     lifetime: state.lifetime,
     unlocked: { ...state.unlocked },
+    awards: { ...state.awards },
     secrets: { ...state.secrets },
     fragments: state.fragments,
     stats: { ...state.stats, autoRate: 0 },

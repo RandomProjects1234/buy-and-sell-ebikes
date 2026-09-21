@@ -10,8 +10,8 @@ import { BP_BY_ID } from '../data/blueprints.js';
 import { addMoney, sellMult, demandFloor } from './economy.js';
 import { emit, EVENTS } from '../core/events.js';
 
-const SATURATION_PER_SALE = 0.965;
-const RECOVERY_TAU = 50;   // seconds-ish to claw most of it back
+const SATURATION_PER_SALE = 0.988;
+const RECOVERY_TAU = 25;   // seconds-ish to claw most of it back
 
 export function demandOf(bpId) {
   const d = state.demand[bpId];

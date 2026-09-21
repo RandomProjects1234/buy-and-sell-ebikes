@@ -63,6 +63,7 @@ export function defaultState() {
     crafted: {},        // blueprintId -> count
     sold: {},           // blueprintId -> count
     demand: {},         // blueprintId -> 0..1 market saturation
+    awards: {},         // achievementId -> timestamp earned
     unlocked: Object.fromEntries(STARTER_BLUEPRINTS.map((id) => [id, true])),
     secrets: {},        // secretId -> true (kirkin_g2, black_site, ...)
 
@@ -72,9 +73,11 @@ export function defaultState() {
     stats: {
       cratesOpened: 0, partsGained: 0, builds: 0, sales: 0,
       salvaged: 0, bestSale: 0, bestBuild: 0, clickEarned: 0, playTime: 0,
+      spanners: 0, gifts: 0,
     },
 
-    settings: { muted: false, reduceMotion: false },
+    settings: { muted: false, reduceMotion: false, volume: 0.9, buyAmount: 1 },
+    net: { name: '', lastRoom: '' },
 
     time: { started: now, lastTick: now, lastSave: now },
   };
