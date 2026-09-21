@@ -32,7 +32,8 @@ export function initActions() {
 
   document.addEventListener('click', (ev) => {
     const target = ev.target.closest('[data-act]');
-    if (!target || target.disabled) return;
+    // .is-disabled covers the rows that are divs rather than <button>s.
+    if (!target || target.disabled || target.classList.contains('is-disabled')) return;
     const fn = handlers.get(target.dataset.act);
     if (!fn) return;
     ev.preventDefault();
