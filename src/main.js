@@ -4,14 +4,16 @@ import { state } from './core/state.js';
 import { load, save, startAutosave } from './core/save.js';
 import { startClock, onTick, onFrame } from './core/clock.js';
 import { registerActions } from './ui/dom.js';
-import { initUI, renderFrame, currentPanel, offlineModal, markDirty } from './ui/render.js';
+import {
+  initUI, renderFrame, currentPanel, offlineModal, markDirty,
+  startTutorial, shouldAutoStart,
+} from './ui/render.js';
 import { initDebug } from './core/debug.js';
 import { sampleIncome, seedIncomeRate } from './systems/economy.js';
 import { tickAutomation, runOffline } from './systems/automation.js';
 import { tickDemand } from './systems/market.js';
 import { checkUnlocks, checkFragments } from './systems/unlocks.js';
 import { tickBuffs } from './systems/buffs.js';
-import { checkAchievements } from './systems/achievements.js';
 import { tickNet } from './net/room.js';
 import { update as updateWheelie, draw as drawWheelie } from './minigame/wheelie.js';
 
@@ -39,7 +41,6 @@ function boot() {
     sampleIncome(dt);
     checkUnlocks();
     checkFragments();
-    checkAchievements();
     tickNet(dt);
     state.time.lastTick = Date.now();
   });
@@ -49,6 +50,9 @@ function boot() {
     renderFrame(dt, now);
     if (currentPanel() === 'wheelie') drawWheelie();
   });
+
+  // A brand new shop gets shown around before anything else happens.
+  if (shouldAutoStart()) startTutorial();
 
   startClock({ hz: 20 });
   startAutosave();

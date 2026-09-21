@@ -4,12 +4,10 @@
 // Systems never read upgrade data directly; they ask this module for the final
 // number. That keeps balancing to one file.
 
-import { state, hasUpgrade, hasPerk } from '../core/state.js';
+import { state } from '../core/state.js';
 import { UPGRADES } from '../data/upgrades.js';
-import { SHARE_BONUS } from '../data/staff.js';
 import { emit, EVENTS } from '../core/events.js';
 import { buffIncomeMult, buffClickMult, buffLuck } from './buffs.js';
-import { achievementBonus } from './achievements.js';
 
 const BASE_CLICK = 1;
 
@@ -31,13 +29,9 @@ function prodEffect(key) {
   return total;
 }
 
-/**
- * Everything that multiplies every dollar: IPO shares, awards, and whatever
- * golden spanner buff is running.
- */
+/** Everything that multiplies every dollar - currently just golden spanners. */
 export function globalMult() {
-  const shares = 1 + SHARE_BONUS * (state.prestige.lifetimeShares || 0);
-  return shares * achievementBonus() * buffIncomeMult();
+  return buffIncomeMult();
 }
 
 /** How much the bike on display adds to each click. */
@@ -50,13 +44,11 @@ export function showroomBonus() {
 
 export function clickValue() {
   const flat = BASE_CLICK + sumEffect('clickAdd');
-  const perk = hasPerk('muscle_memory') ? 3 : 1;
-  return flat * prodEffect('clickMult') * perk * showroomBonus() * globalMult() * buffClickMult();
+  return flat * prodEffect('clickMult') * showroomBonus() * globalMult() * buffClickMult();
 }
 
 export function sellMult() {
-  const perk = hasPerk('brand_recognition') ? 1.4 : 1;
-  return prodEffect('sellMult') * perk * globalMult();
+  return prodEffect('sellMult') * globalMult();
 }
 
 export function crateCost(crate) {
@@ -70,7 +62,7 @@ export function crateLuck() {
 }
 
 export function autoMult() {
-  return prodEffect('autoMult') * (hasPerk('fast_hands') ? 1.5 : 1);
+  return prodEffect('autoMult');
 }
 
 export function wheelieMult() { return prodEffect('wheelieMult'); }
@@ -78,7 +70,7 @@ export function wheelieZoneBonus() { return sumEffect('wheelieZone'); }
 export function wheelieSaves() { return sumEffect('wheelieSave'); }
 
 export function offlineCapHours() {
-  return 8 + sumEffect('offlineHours') + (hasPerk('night_shift') ? 16 : 0);
+  return 8 + sumEffect('offlineHours');
 }
 
 export function demandFloor(bp) {
@@ -87,7 +79,7 @@ export function demandFloor(bp) {
 }
 
 export function fragmentLuck() {
-  return hasPerk('kirkin_insider') ? 4 : 1;
+  return 1;
 }
 
 // --- money ------------------------------------------------------------------
@@ -101,7 +93,6 @@ export function addMoney(amount, source = 'misc') {
   if (!isFinite(amount) || amount <= 0) return 0;
   state.money += amount;
   state.lifetime += amount;
-  state.runEarned += amount;
   incomeBucket += amount;
   if (source === 'auto') autoBucket += amount;
   if (source === 'click') state.stats.clickEarned += amount;

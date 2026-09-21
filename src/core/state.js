@@ -37,8 +37,7 @@ export function defaultState() {
     v: SAVE_VERSION,
 
     money: 0,
-    lifetime: 0,        // earned across every run - drives unlocks
-    runEarned: 0,       // earned since the last IPO - drives share payout
+    lifetime: 0,        // earned all time - drives unlocks
     clicks: 0,
     logoClicks: 0,
 
@@ -63,11 +62,9 @@ export function defaultState() {
     crafted: {},        // blueprintId -> count
     sold: {},           // blueprintId -> count
     demand: {},         // blueprintId -> 0..1 market saturation
-    awards: {},         // achievementId -> timestamp earned
     unlocked: Object.fromEntries(STARTER_BLUEPRINTS.map((id) => [id, true])),
     secrets: {},        // secretId -> true (kirkin_g2, black_site, ...)
 
-    prestige: { shares: 0, lifetimeShares: 0, runs: 0, perks: {} },
     wheelie: { best: 0, runs: 0, earned: 0, unlocked: false },
 
     stats: {
@@ -77,6 +74,7 @@ export function defaultState() {
     },
 
     settings: { muted: false, reduceMotion: false, volume: 0.9, buyAmount: 1 },
+    tutorial: { done: false, step: 0 },
     net: { name: '', lastRoom: '' },
 
     time: { started: now, lastTick: now, lastSave: now },
@@ -97,7 +95,7 @@ export function migrate(loaded) {
   const merged = deepMerge(base, loaded || {});
   merged.v = SAVE_VERSION;
   // Guard against corrupted numbers making the whole UI read NaN.
-  for (const key of ['money', 'lifetime', 'runEarned', 'clicks', 'logoClicks', 'fragments']) {
+  for (const key of ['money', 'lifetime', 'clicks', 'logoClicks', 'fragments']) {
     if (!isFinite(merged[key])) merged[key] = 0;
   }
   if (!Array.isArray(merged.garage)) merged.garage = [];
@@ -145,7 +143,6 @@ export function totalParts() {
 }
 
 export function hasUpgrade(id) { return !!state.upgrades[id]; }
-export function hasPerk(id) { return !!state.prestige.perks[id]; }
 export function workerCount(id) { return state.workers[id] || 0; }
 export function farmLevel(id) { return state.farms[id] || 0; }
 export function isUnlocked(id) { return !!state.unlocked[id]; }

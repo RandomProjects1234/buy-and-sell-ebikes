@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// STAFF + FACILITIES + IPO PERKS
+// STAFF + FACILITIES
 // ---------------------------------------------------------------------------
 
 // Each role automates exactly one stage of the manual loop, slower than a human
@@ -83,32 +83,3 @@ export const FARMS = [
 ];
 
 export const FARM_BY_ID = Object.fromEntries(FARMS.map((f) => [f.id, f]));
-
-// IPO perks. Bought with shares; owning them is permanent across every reset.
-export const PERKS = [
-  { id: 'founders_kit', name: "Founder's Toolkit", cost: 3,
-    desc: 'Every rebrand starts with $40,000 of seed money and a pallet of Standard parts.' },
-  { id: 'muscle_memory', name: 'Muscle Memory', cost: 4,
-    desc: 'Your hands remember every bike you ever built. Click value x3.' },
-  { id: 'brand_recognition', name: 'Brand Recognition', cost: 5,
-    desc: 'The name survives the rebrand. All sale prices +40%.' },
-  { id: 'night_shift', name: 'Night Shift', cost: 6,
-    desc: 'The lights never go off. Offline earnings cap 8h to 24h.' },
-  { id: 'retained_talent', name: 'Retained Talent', cost: 8,
-    desc: 'Three of every unlocked staff role follow you to the new company.' },
-  { id: 'fast_hands', name: 'Fast Hands', cost: 10,
-    desc: 'Company-wide training. All staff work 50% faster, forever.' },
-  { id: 'showroom_legacy', name: 'Showroom Legacy', cost: 12,
-    desc: 'Your showroom bike is yours. It survives every IPO from here on.' },
-  { id: 'warehouse', name: 'Bonded Warehouse', cost: 15,
-    desc: 'Half your parts inventory (rounded down) carries through a rebrand.' },
-  { id: 'kirkin_insider', name: 'Kirkin Insider', cost: 20,
-    desc: 'Somebody talks. Schematic fragments drop four times as often.' },
-];
-
-export const PERK_BY_ID = Object.fromEntries(PERKS.map((p) => [p.id, p]));
-
-// shares = floor(sqrt(run earnings / SHARE_DIVISOR)); each lifetime share is
-// worth SHARE_BONUS to the global money multiplier.
-export const SHARE_DIVISOR = 1e6;
-export const SHARE_BONUS = 0.05;

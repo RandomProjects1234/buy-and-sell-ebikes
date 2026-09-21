@@ -90,8 +90,6 @@ function profile() {
     lifetime: state.lifetime,
     money: state.money,
     rate: incomePerSec(),
-    shares: state.prestige.lifetimeShares,
-    awards: Object.keys(state.awards).length,
     builds: state.stats.builds,
     bike: state.showroom ? state.showroom.name : '-',
     tier: state.showroom ? state.showroom.tier : 0,

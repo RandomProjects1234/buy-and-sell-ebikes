@@ -57,8 +57,7 @@ function playerRow(p, rank, meId) {
     <span class="net-name">${esc(p.name)}${me ? ' <i>(you)</i>' : ''}<i>${esc(p.bike || '-')}</i></span>
     <span class="net-money"><b>${fmtMoney(p.lifetime)}</b><i>${fmtRate(p.rate || 0)}</i></span>
     <span class="net-extra">
-      ${p.awards ? `<span title="Awards">${icon('star')}${p.awards}</span>` : ''}
-      ${p.shares ? `<span title="Shares">${icon('ipo')}${fmtNum(p.shares, { int: true })}</span>` : ''}
+      ${p.builds ? `<span title="Builds finished">${icon('wrench')}${fmtNum(p.builds, { int: true })}</span>` : ''}
     </span>
   </div>`;
 }

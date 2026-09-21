@@ -1,36 +1,42 @@
 // ---------------------------------------------------------------------------
 // SHELL RENDERING
 // ---------------------------------------------------------------------------
-// Cookie Clicker's three column shape: the thing you click on the left, the
-// working area in the middle, and a permanent store on the right. Panels hand
-// back HTML strings; this module decides when it is safe to swap them in (never
-// mid-click, never while a select or a text box has focus).
+// The clicker on the left, the working area on the right. Panels hand back HTML
+// strings; this module decides when it is safe to swap them in (never mid-click,
+// never while a select or a text box has focus).
 
 import { state, totalParts } from '../core/state.js';
-import { clickValue, incomePerSec, globalMult, showroomBonus, addMoney } from '../systems/economy.js';
+import { clickValue, incomePerSec, showroomBonus, addMoney } from '../systems/economy.js';
 import { registerActions, initActions, esc, el, isPointerDown, isEditing, eventPoint } from './dom.js';
 import { fmtMoney, fmtNum, fmtMult, fmtRate, fmtTime } from '../core/format.js';
 import { bikeSVG } from './bikeArt.js';
 import { icon } from './icons.js';
-import { floatText, burst, toast, bigWin, pop, initFx, updateShake, flash, confetti } from './fx.js';
+import { floatText, burst, toast, bigWin, pop, initFx, updateShake, flash } from './fx.js';
 import { play, unlockAudio, setMuted } from '../core/audio.js';
 import { on, EVENTS } from '../core/events.js';
 import { registerLogoClick, SECRET_INFO } from '../systems/unlocks.js';
 import { save, exportSave, importSave, wipeSave } from '../core/save.js';
-import { renderStore, storeActions, initStoreHover } from './store.js';
 import { currentSpanner, grabSpanner, activeBuffs } from '../systems/buffs.js';
-import { awardCount, achievementBonus } from '../systems/achievements.js';
 import { shareSpanner, isOnline } from '../net/room.js';
+import {
+  initTutorial, renderTutorial, tutorialActions, startTutorial,
+  tutorialActive, shouldAutoStart,
+} from './tutorial.js';
 
 import cratesPanel from './panels/crates.js';
 import workbenchPanel from './panels/workbench.js';
 import garagePanel from './panels/garage.js';
+import upgradesPanel from './panels/upgrades.js';
+import staffPanel from './panels/staff.js';
+import farmsPanel from './panels/farms.js';
 import wheeliePanel from './panels/wheelie.js';
-import awardsPanel from './panels/awards.js';
 import networkPanel from './panels/network.js';
-import ipoPanel from './panels/ipo.js';
+import indexPanel from './panels/index.js';
 
-const PANELS = [cratesPanel, workbenchPanel, garagePanel, wheeliePanel, awardsPanel, networkPanel, ipoPanel];
+const PANELS = [
+  cratesPanel, workbenchPanel, garagePanel, upgradesPanel,
+  staffPanel, farmsPanel, wheeliePanel, indexPanel, networkPanel,
+];
 
 // Shop ranks, Cookie Clicker style: a title that quietly escalates.
 const RANKS = [
@@ -51,14 +57,12 @@ const RANKS = [
 let activePanel = 'crates';
 let panelDirty = true;
 let tabsDirty = true;
-let storeDirty = true;
 let lastShowroomKey = null;
 let lastPanelHTML = '';
-let lastStoreHTML = '';
 let spannerEl = null;
 let refs = {};
 
-export function markDirty() { panelDirty = true; storeDirty = true; }
+export function markDirty() { panelDirty = true; }
 export function markTabsDirty() { tabsDirty = true; }
 
 function rankFor(lifetime) {
@@ -101,8 +105,6 @@ function shellHTML() {
       <nav class="tabs" id="tabs"></nav>
       <div class="panel" id="panel"></div>
     </section>
-
-    <aside class="store" id="store"></aside>
   </main>
 
   <div class="fx-layer" id="fx-layer"></div>
@@ -137,14 +139,6 @@ function renderPanel() {
   lastPanelHTML = html;
   refs.panel.innerHTML = html;
   if (panel.mount) panel.mount();
-}
-
-function renderStoreColumn() {
-  storeDirty = false;
-  const html = renderStore();
-  if (html === lastStoreHTML) return;
-  lastStoreHTML = html;
-  refs.store.innerHTML = html;
 }
 
 function showroomKey() {
@@ -191,15 +185,14 @@ function questLine() {
   if (!s.stats.cratesOpened) return 'Buy a <b>Scrap Crate</b> in the Crates tab - that is where parts come from.';
   if (!s.stats.builds) return 'Open a few crates, then build a <b>Scoot Lite</b> at the Workbench.';
   if (!s.stats.sales) return 'Your build is in the <b>Garage</b>. Sell it.';
-  if (!Object.keys(s.workers).length && s.lifetime >= 2500) return 'You can afford staff. Hire a <b>Crate Runner</b> in the store on the right.';
+  if (!Object.keys(s.workers).length && s.lifetime >= 2500) return 'You can afford staff. Hire a <b>Crate Runner</b> in the Staff tab.';
   if (s.wheelie.unlocked && !s.wheelie.runs) return 'The treadmill out back is free. Try <b>Wheelie mode</b>.';
-  if (!Object.keys(s.farms).length && s.lifetime >= 4000) return 'A <b>Scrap Yard</b> makes parts while you do something else.';
-  if (!s.prestige.runs && s.lifetime >= 3e6) return 'The <b>IPO</b> tab turns this run into a permanent multiplier.';
+  if (!Object.keys(s.farms).length && s.lifetime >= 4000) return 'A <b>Scrap Yard</b> in Facilities makes parts while you do something else.';
   return '';
 }
 
 function renderQuest() {
-  const line = questLine();
+  const line = tutorialActive() ? '' : questLine();
   if (refs.quest.dataset.line === line) return;
   refs.quest.dataset.line = line;
   refs.quest.innerHTML = line ? `<span class="quest-dot"></span>${line}` : '';
@@ -212,8 +205,6 @@ function renderHud() {
   refs.pills.innerHTML = `
     <span class="pill" title="Parts in the bin">${fmtNum(totalParts(), { int: true })} parts</span>
     <span class="pill" title="Builds on the floor">${fmtNum(state.garage.length, { int: true })} builds</span>
-    ${awardCount() ? `<span class="pill pill-gold" title="Awards">${icon('star')}${awardCount()}</span>` : ''}
-    ${state.prestige.lifetimeShares ? `<span class="pill pill-gold" title="Everything multiplier">${fmtMult(globalMult())}</span>` : ''}
     ${state.fragments ? `<span class="pill pill-secret" title="Kirkin schematic fragments">${state.fragments}/4 fragments</span>` : ''}`;
 }
 
@@ -267,6 +258,7 @@ function settingsModal() {
     <div class="settings-list">
       <button class="btn" data-act="shell:mute">${state.settings.muted ? 'Unmute' : 'Mute'} sound</button>
       <button class="btn" data-act="shell:motion">${state.settings.reduceMotion ? 'Enable' : 'Reduce'} motion</button>
+      <button class="btn" data-act="shell:tour">Replay the tour</button>
       <button class="btn" data-act="shell:save">Save now</button>
       <button class="btn" data-act="shell:export">Export save</button>
       <button class="btn" data-act="shell:import">Import save</button>
@@ -353,6 +345,8 @@ const shellActions = {
     settingsModal();
   },
 
+  'shell:tour': () => { closeModal(); startTutorial(); },
+
   'shell:settings': () => settingsModal(),
   'shell:closemodal': (ds, ev) => {
     if (ev && ev.target.closest('[data-stop]') && !ev.target.closest('[data-act="shell:closemodal"]')) return;
@@ -404,7 +398,7 @@ const shellActions = {
 
   'shell:wipe': () => {
     modal(`<h2>Wipe everything?</h2>
-      <p class="muted">Shares, perks, awards, blueprints, the lot. There is no undo.</p>
+      <p class="muted">Money, parts, builds, staff, upgrades, blueprints - the lot. There is no undo.</p>
       <div class="modal-actions">
         <button class="btn btn-danger" data-act="shell:dowipe">Yes, burn it down</button>
         <button class="btn btn-primary" data-act="shell:closemodal">Keep my shop</button>
@@ -431,7 +425,6 @@ export function initUI(root) {
     pills: el('hud-pills'),
     tabs: el('tabs'),
     panel: el('panel'),
-    store: el('store'),
     stageArt: el('stage-art'),
     stageInfo: el('stage-info'),
     stageHint: el('stage-hint'),
@@ -444,9 +437,9 @@ export function initUI(root) {
 
   initFx();
   initActions();
-  initStoreHover();
+  initTutorial(el('fx-layer'), setPanel);
   registerActions(shellActions);
-  registerActions(storeActions);
+  registerActions(tutorialActions);
   for (const panel of PANELS) if (panel.actions) registerActions(panel.actions);
 
   refs.muteBtn.innerHTML = icon(state.settings.muted ? 'mute' : 'sound');
@@ -454,7 +447,6 @@ export function initUI(root) {
   on(EVENTS.TOAST, ({ text, kind }) => toast(text, kind));
   on(EVENTS.BIG_WIN, (payload) => { bigWin(payload); markTabsDirty(); markDirty(); });
   on(EVENTS.BLUEPRINT_UNLOCKED, () => { markDirty(); markTabsDirty(); });
-  on(EVENTS.PRESTIGE, () => { lastShowroomKey = null; markDirty(); markTabsDirty(); });
   on(EVENTS.CRATE_OPENED, markDirty);
   on(EVENTS.CRAFTED, () => { markDirty(); markTabsDirty(); });
   on(EVENTS.SOLD, () => { markDirty(); markTabsDirty(); });
@@ -463,17 +455,8 @@ export function initUI(root) {
     markDirty();
     toast(`Wheelie run banked ${fmtMoney(payout)}.`, 'good');
   });
-  on(EVENTS.ACHIEVEMENT, ({ achievement }) => {
-    play('achieve');
-    confetti({ count: 26 });
-    toast(`<b>Award:</b> ${esc(achievement.name)} &middot; ${esc(achievement.desc)}`, 'good');
-    markTabsDirty();
-    markDirty();
-  });
-
   renderTabs();
   renderPanel();
-  renderStoreColumn();
   renderStage();
   renderHud();
   renderQuest();
@@ -489,14 +472,22 @@ export function renderFrame(dt, now) {
   renderBuffs();
   renderSpanner();
   renderQuest();
+  renderTutorial();
 
   sinceRefresh += dt;
-  if (sinceRefresh > 0.5) { panelDirty = true; storeDirty = true; sinceRefresh = 0; }
+  if (sinceRefresh > 0.5) { panelDirty = true; sinceRefresh = 0; }
   const busy = isPointerDown() || isEditing();
   if (tabsDirty && !busy) renderTabs();
   if (panelDirty && !busy) renderPanel();
-  if (storeDirty && !busy) renderStoreColumn();
 }
 
 export function currentPanel() { return activePanel; }
-export function setPanel(id) { activePanel = id; tabsDirty = true; panelDirty = true; }
+export function setPanel(id) {
+  if (id === activePanel) return;
+  activePanel = id;
+  tabsDirty = true;
+  panelDirty = true;
+  lastPanelHTML = '';
+}
+
+export { startTutorial, shouldAutoStart };

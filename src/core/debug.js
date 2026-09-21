@@ -26,7 +26,6 @@ function html() {
   <div class="debug-row">
     <button class="btn btn-tiny" data-act="dbg:unlockall">Unlock all blueprints</button>
     <button class="btn btn-tiny" data-act="dbg:fragment">+1 fragment</button>
-    <button class="btn btn-tiny" data-act="dbg:shares">+25 shares</button>
   </div>
   <div class="debug-row">
     <button class="btn btn-tiny" data-act="dbg:ff" data-s="60">FF 1 min</button>
@@ -48,7 +47,6 @@ const actions = {
     emit(EVENTS.TOAST, { text: 'Everything unlocked.', kind: 'info' });
   },
   'dbg:fragment': () => { state.fragments += 1; unlockSecret('black_site'); checkFragments(); },
-  'dbg:shares': () => { state.prestige.shares += 25; state.prestige.lifetimeShares += 25; },
   'dbg:ff': (ds) => {
     const seconds = Number(ds.s);
     const step = Math.max(1, seconds / 600);
