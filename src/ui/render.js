@@ -1,42 +1,71 @@
 // ---------------------------------------------------------------------------
 // SHELL RENDERING
 // ---------------------------------------------------------------------------
-// Header, showroom stage, tab bar and the active panel. Panels hand back HTML
-// strings; this module decides when it is safe to swap them in (never mid-click
-// and never while a select is open).
+// Cookie Clicker's three column shape: the thing you click on the left, the
+// working area in the middle, and a permanent store on the right. Panels hand
+// back HTML strings; this module decides when it is safe to swap them in (never
+// mid-click, never while a select or a text box has focus).
 
-import { state } from '../core/state.js';
+import { state, totalParts } from '../core/state.js';
 import { clickValue, incomePerSec, globalMult, showroomBonus, addMoney } from '../systems/economy.js';
-import { registerActions, initActions, esc, el, isPointerDown, isEditing, whenPointerUp, eventPoint } from './dom.js';
+import { registerActions, initActions, esc, el, isPointerDown, isEditing, eventPoint } from './dom.js';
 import { fmtMoney, fmtNum, fmtMult, fmtRate, fmtTime } from '../core/format.js';
 import { bikeSVG } from './bikeArt.js';
 import { icon } from './icons.js';
-import { floatText, burst, toast, bigWin, pop, initFx, updateShake, flash } from './fx.js';
+import { floatText, burst, toast, bigWin, pop, initFx, updateShake, flash, confetti } from './fx.js';
 import { play, unlockAudio, setMuted } from '../core/audio.js';
 import { on, EVENTS } from '../core/events.js';
 import { registerLogoClick, SECRET_INFO } from '../systems/unlocks.js';
 import { save, exportSave, importSave, wipeSave } from '../core/save.js';
-import { totalParts } from '../core/state.js';
+import { renderStore, storeActions, initStoreHover } from './store.js';
+import { currentSpanner, grabSpanner, activeBuffs } from '../systems/buffs.js';
+import { awardCount, achievementBonus } from '../systems/achievements.js';
+import { shareSpanner, isOnline } from '../net/room.js';
 
 import cratesPanel from './panels/crates.js';
 import workbenchPanel from './panels/workbench.js';
 import garagePanel from './panels/garage.js';
-import upgradesPanel from './panels/upgrades.js';
-import staffPanel from './panels/staff.js';
-import farmsPanel from './panels/farms.js';
 import wheeliePanel from './panels/wheelie.js';
+import awardsPanel from './panels/awards.js';
+import networkPanel from './panels/network.js';
 import ipoPanel from './panels/ipo.js';
 
-const PANELS = [cratesPanel, workbenchPanel, garagePanel, upgradesPanel, staffPanel, farmsPanel, wheeliePanel, ipoPanel];
+const PANELS = [cratesPanel, workbenchPanel, garagePanel, wheeliePanel, awardsPanel, networkPanel, ipoPanel];
+
+// Shop ranks, Cookie Clicker style: a title that quietly escalates.
+const RANKS = [
+  [0, 'Bloke With A Shed'],
+  [1e3, 'Curbside Flipper'],
+  [2e4, 'Corner Shop'],
+  [3e5, 'Proper Dealership'],
+  [5e6, 'Regional Distributor'],
+  [1e8, 'Brand Name'],
+  [4e9, 'Industry Player'],
+  [2e11, 'Market Leader'],
+  [1e13, 'Monopoly, Basically'],
+  [1e15, 'Nation State With Bikes'],
+  [1e18, 'Physics Advisory Board'],
+  [1e21, 'Kirkin Tier'],
+];
 
 let activePanel = 'crates';
 let panelDirty = true;
 let tabsDirty = true;
+let storeDirty = true;
 let lastShowroomKey = null;
+let lastPanelHTML = '';
+let lastStoreHTML = '';
+let spannerEl = null;
 let refs = {};
 
-export function markDirty() { panelDirty = true; }
+export function markDirty() { panelDirty = true; storeDirty = true; }
 export function markTabsDirty() { tabsDirty = true; }
+
+function rankFor(lifetime) {
+  let name = RANKS[0][1];
+  for (const [at, label] of RANKS) if (lifetime >= at) name = label;
+  return name;
+}
 
 // --- shell ------------------------------------------------------------------
 
@@ -47,14 +76,7 @@ function shellHTML() {
       <span class="brand-mark">${icon('bolt')}</span>
       <span class="brand-text"><b>BUY &amp; SELL</b><i>E-BIKES</i></span>
     </button>
-
-    <div class="wallet">
-      <div class="wallet-money" id="hud-money">$0</div>
-      <div class="wallet-rate" id="hud-rate">$0/s</div>
-    </div>
-
     <div class="hud-pills" id="hud-pills"></div>
-
     <div class="topbar-buttons">
       <button class="icon-btn" data-act="shell:mute" id="mute-btn" title="Mute">${icon('sound')}</button>
       <button class="icon-btn" data-act="shell:settings" title="Settings">${icon('gear')}</button>
@@ -63,16 +85,24 @@ function shellHTML() {
 
   <main class="layout">
     <section class="stage">
+      <div class="bank">
+        <div class="bank-money" id="hud-money">$0</div>
+        <div class="bank-rate" id="hud-rate">$0/s</div>
+      </div>
       <div class="stage-art" id="stage-art"></div>
       <button class="stage-click" data-act="shell:click" id="stage-click" aria-label="Test ride the bike for money"></button>
       <div class="stage-info" id="stage-info"></div>
       <div class="stage-hint" id="stage-hint"></div>
+      <div class="buff-bar" id="buff-bar"></div>
+      <div class="quest" id="quest"></div>
     </section>
 
     <section class="workspace">
       <nav class="tabs" id="tabs"></nav>
       <div class="panel" id="panel"></div>
     </section>
+
+    <aside class="store" id="store"></aside>
   </main>
 
   <div class="fx-layer" id="fx-layer"></div>
@@ -94,8 +124,6 @@ function renderTabs() {
   tabsDirty = false;
 }
 
-let lastPanelHTML = '';
-
 function renderPanel() {
   const panel = PANELS.find((p) => p.id === activePanel);
   if (!panel) return;
@@ -109,6 +137,14 @@ function renderPanel() {
   lastPanelHTML = html;
   refs.panel.innerHTML = html;
   if (panel.mount) panel.mount();
+}
+
+function renderStoreColumn() {
+  storeDirty = false;
+  const html = renderStore();
+  if (html === lastStoreHTML) return;
+  lastStoreHTML = html;
+  refs.store.innerHTML = html;
 }
 
 function showroomKey() {
@@ -133,7 +169,41 @@ function renderStage() {
          <span class="hot"><b>${fmtMult(showroomBonus())}</b> click</span>
        </div>`
     : `<h1>Empty stand</h1><div class="stage-specs"><span>Put a build in the window</span></div>`;
-  refs.stageHint.innerHTML = `<b>${fmtMoney(cv)}</b> per test ride &middot; ${fmtNum(state.clicks, { int: true })} rides`;
+  refs.stageHint.innerHTML =
+    `<b>${fmtMoney(cv)}</b> per test ride &middot; <span class="rank">${rankFor(state.lifetime)}</span>`;
+}
+
+function renderBuffs() {
+  const buffs = activeBuffs();
+  const html = buffs.map((b) => `<span class="buff-chip" style="--c:${b.color}">
+      ${esc(b.name)}<i>${Math.ceil(b.remaining)}s</i></span>`).join('');
+  if (refs.buffBar.dataset.n !== String(buffs.length) || buffs.length) {
+    refs.buffBar.innerHTML = html;
+    refs.buffBar.dataset.n = String(buffs.length);
+  }
+}
+
+// --- the nudge for new players ----------------------------------------------
+
+function questLine() {
+  const s = state;
+  if (s.clicks < 10) return 'Click the bike. Every test ride is money.';
+  if (!s.stats.cratesOpened) return 'Buy a <b>Scrap Crate</b> in the Crates tab - that is where parts come from.';
+  if (!s.stats.builds) return 'Open a few crates, then build a <b>Scoot Lite</b> at the Workbench.';
+  if (!s.stats.sales) return 'Your build is in the <b>Garage</b>. Sell it.';
+  if (!Object.keys(s.workers).length && s.lifetime >= 2500) return 'You can afford staff. Hire a <b>Crate Runner</b> in the store on the right.';
+  if (s.wheelie.unlocked && !s.wheelie.runs) return 'The treadmill out back is free. Try <b>Wheelie mode</b>.';
+  if (!Object.keys(s.farms).length && s.lifetime >= 4000) return 'A <b>Scrap Yard</b> makes parts while you do something else.';
+  if (!s.prestige.runs && s.lifetime >= 3e6) return 'The <b>IPO</b> tab turns this run into a permanent multiplier.';
+  return '';
+}
+
+function renderQuest() {
+  const line = questLine();
+  if (refs.quest.dataset.line === line) return;
+  refs.quest.dataset.line = line;
+  refs.quest.innerHTML = line ? `<span class="quest-dot"></span>${line}` : '';
+  refs.quest.classList.toggle('is-on', !!line);
 }
 
 function renderHud() {
@@ -142,8 +212,39 @@ function renderHud() {
   refs.pills.innerHTML = `
     <span class="pill" title="Parts in the bin">${fmtNum(totalParts(), { int: true })} parts</span>
     <span class="pill" title="Builds on the floor">${fmtNum(state.garage.length, { int: true })} builds</span>
-    ${state.prestige.lifetimeShares ? `<span class="pill pill-gold" title="Share multiplier">${fmtMult(globalMult())}</span>` : ''}
+    ${awardCount() ? `<span class="pill pill-gold" title="Awards">${icon('star')}${awardCount()}</span>` : ''}
+    ${state.prestige.lifetimeShares ? `<span class="pill pill-gold" title="Everything multiplier">${fmtMult(globalMult())}</span>` : ''}
     ${state.fragments ? `<span class="pill pill-secret" title="Kirkin schematic fragments">${state.fragments}/4 fragments</span>` : ''}`;
+}
+
+// --- the golden spanner ------------------------------------------------------
+
+const SPANNER_SVG = `<svg viewBox="0 0 48 48" width="62" height="62" aria-hidden="true">
+  <defs><linearGradient id="spg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#fff3c4"/><stop offset="45%" stop-color="#ffd166"/>
+    <stop offset="100%" stop-color="#c8860d"/></linearGradient></defs>
+  <g transform="rotate(-38 24 24)">
+    <path d="M30 6a9 9 0 0 0-8.4 12.2L8 31.8a4 4 0 0 0 5.7 5.7l13.6-13.6A9 9 0 1 0 30 6zm0 4a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"
+          fill="url(#spg)" stroke="#8a5c05" stroke-width="1.2"/>
+  </g></svg>`;
+
+function renderSpanner() {
+  const sp = currentSpanner();
+  if (!sp) {
+    if (spannerEl) { spannerEl.remove(); spannerEl = null; }
+    return;
+  }
+  if (!spannerEl) {
+    spannerEl = document.createElement('button');
+    spannerEl.className = 'spanner';
+    spannerEl.title = 'Golden spanner - grab it';
+    spannerEl.dataset.act = 'shell:spanner';
+    spannerEl.innerHTML = SPANNER_SVG;
+    refs.fx.appendChild(spannerEl);
+    play('golden');
+  }
+  spannerEl.style.left = `${sp.x * 100}%`;
+  spannerEl.style.top = `${sp.y * 100}%`;
 }
 
 // --- modals -----------------------------------------------------------------
@@ -171,7 +272,8 @@ function settingsModal() {
       <button class="btn" data-act="shell:import">Import save</button>
       <button class="btn btn-danger" data-act="shell:wipe">Wipe everything</button>
     </div>
-    <p class="muted small">Autosaves every 15 seconds and whenever you close the tab. Add <code>?debug</code> to the URL (or press Ctrl+Shift+D) for the cheat panel.</p>
+    <p class="muted small">Autosaves every 15 seconds and whenever you close the tab. Add
+      <code>?debug</code> to the URL (or press Ctrl+Shift+D) for the cheat panel.</p>
     <div class="modal-actions"><button class="btn btn-primary" data-act="shell:closemodal">Done</button></div>`);
 }
 
@@ -206,6 +308,20 @@ const shellActions = {
       burst(x, y, { count: 10, colors: ['#ffd166', '#fff'], power: 0.7 });
       play('clickBig');
     }
+    markDirty();
+  },
+
+  'shell:spanner': (ds, ev, target) => {
+    unlockAudio();
+    const res = grabSpanner();
+    if (!res) return;
+    const { x, y } = eventPoint(ev, target);
+    play('buff');
+    burst(x, y, { count: 26, colors: ['#ffd166', '#fff3c4', '#fff'], power: 1.4, size: 9 });
+    flash('rgba(255,209,102,.35)', 380);
+    if (spannerEl) { spannerEl.remove(); spannerEl = null; }
+    bigWin({ text: res.buff.name, sub: res.sub, kind: 'mythic' });
+    if (isOnline()) shareSpanner();
     markDirty();
   },
 
@@ -288,7 +404,7 @@ const shellActions = {
 
   'shell:wipe': () => {
     modal(`<h2>Wipe everything?</h2>
-      <p class="muted">Shares, perks, blueprints, the lot. There is no undo.</p>
+      <p class="muted">Shares, perks, awards, blueprints, the lot. There is no undo.</p>
       <div class="modal-actions">
         <button class="btn btn-danger" data-act="shell:dowipe">Yes, burn it down</button>
         <button class="btn btn-primary" data-act="shell:closemodal">Keep my shop</button>
@@ -315,16 +431,22 @@ export function initUI(root) {
     pills: el('hud-pills'),
     tabs: el('tabs'),
     panel: el('panel'),
+    store: el('store'),
     stageArt: el('stage-art'),
     stageInfo: el('stage-info'),
     stageHint: el('stage-hint'),
+    buffBar: el('buff-bar'),
+    quest: el('quest'),
     modal: el('modal-root'),
     muteBtn: el('mute-btn'),
+    fx: el('fx-layer'),
   };
 
   initFx();
   initActions();
+  initStoreHover();
   registerActions(shellActions);
+  registerActions(storeActions);
   for (const panel of PANELS) if (panel.actions) registerActions(panel.actions);
 
   refs.muteBtn.innerHTML = icon(state.settings.muted ? 'mute' : 'sound');
@@ -336,15 +458,25 @@ export function initUI(root) {
   on(EVENTS.CRATE_OPENED, markDirty);
   on(EVENTS.CRAFTED, () => { markDirty(); markTabsDirty(); });
   on(EVENTS.SOLD, () => { markDirty(); markTabsDirty(); });
+  on(EVENTS.NET, () => { if (activePanel === 'network') markDirty(); markTabsDirty(); });
   on(EVENTS.WHEELIE_END, ({ payout }) => {
     markDirty();
     toast(`Wheelie run banked ${fmtMoney(payout)}.`, 'good');
   });
+  on(EVENTS.ACHIEVEMENT, ({ achievement }) => {
+    play('achieve');
+    confetti({ count: 26 });
+    toast(`<b>Award:</b> ${esc(achievement.name)} &middot; ${esc(achievement.desc)}`, 'good');
+    markTabsDirty();
+    markDirty();
+  });
 
   renderTabs();
   renderPanel();
+  renderStoreColumn();
   renderStage();
   renderHud();
+  renderQuest();
 }
 
 let sinceRefresh = 0;
@@ -354,11 +486,16 @@ export function renderFrame(dt, now) {
   updateShake(now);
   renderHud();
   renderStage();
+  renderBuffs();
+  renderSpanner();
+  renderQuest();
 
   sinceRefresh += dt;
-  if (sinceRefresh > 0.5) { panelDirty = true; sinceRefresh = 0; }
-  if (tabsDirty && !isPointerDown()) renderTabs();
-  if (panelDirty && !isPointerDown() && !isEditing()) renderPanel();
+  if (sinceRefresh > 0.5) { panelDirty = true; storeDirty = true; sinceRefresh = 0; }
+  const busy = isPointerDown() || isEditing();
+  if (tabsDirty && !busy) renderTabs();
+  if (panelDirty && !busy) renderPanel();
+  if (storeDirty && !busy) renderStoreColumn();
 }
 
 export function currentPanel() { return activePanel; }
