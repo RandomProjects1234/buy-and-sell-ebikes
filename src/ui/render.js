@@ -146,6 +146,27 @@ function showroomKey() {
   return b ? `${b.bp}:${b.tier}:${b.kind}:${Math.round(b.value)}` : 'none';
 }
 
+/**
+ * Write to a node only when the markup actually changed.
+ *
+ * This matters more than it looks: the stage used to rebuild its innerHTML on
+ * every single frame, which throws away and recreates the nodes under the
+ * cursor sixty times a second. Any wheel event that landed on a node in the
+ * instant it was replaced was simply dropped, so scrolling over the bike felt
+ * broken - and text under there could never be selected either.
+ */
+function setHTML(node, html) {
+  if (node.__last === html) return;
+  node.__last = html;
+  node.innerHTML = html;
+}
+
+function setText(node, text) {
+  if (node.__last === text) return;
+  node.__last = text;
+  node.textContent = text;
+}
+
 function renderStage() {
   const bike = state.showroom;
   const key = showroomKey();
@@ -154,7 +175,7 @@ function renderStage() {
     lastShowroomKey = key;
   }
   const cv = clickValue();
-  refs.stageInfo.innerHTML = bike
+  setHTML(refs.stageInfo, bike
     ? `<h1>${esc(bike.name)}</h1>
        <div class="stage-specs">
          <span><b>${fmtNum(bike.speed)}</b> mph</span>
@@ -162,19 +183,15 @@ function renderStage() {
          <span><b>${fmtNum(bike.accel)}s</b> 0-30</span>
          <span class="hot"><b>${fmtMult(showroomBonus())}</b> click</span>
        </div>`
-    : `<h1>Empty stand</h1><div class="stage-specs"><span>Put a build in the window</span></div>`;
-  refs.stageHint.innerHTML =
-    `<b>${fmtMoney(cv)}</b> per test ride &middot; <span class="rank">${rankFor(state.lifetime)}</span>`;
+    : `<h1>Empty stand</h1><div class="stage-specs"><span>Put a build in the window</span></div>`);
+  setHTML(refs.stageHint,
+    `<b>${fmtMoney(cv)}</b> per test ride &middot; <span class="rank">${rankFor(state.lifetime)}</span>`);
 }
 
 function renderBuffs() {
   const buffs = activeBuffs();
-  const html = buffs.map((b) => `<span class="buff-chip" style="--c:${b.color}">
-      ${esc(b.name)}<i>${Math.ceil(b.remaining)}s</i></span>`).join('');
-  if (refs.buffBar.dataset.n !== String(buffs.length) || buffs.length) {
-    refs.buffBar.innerHTML = html;
-    refs.buffBar.dataset.n = String(buffs.length);
-  }
+  setHTML(refs.buffBar, buffs.map((b) => `<span class="buff-chip" style="--c:${b.color}">
+      ${esc(b.name)}<i>${Math.ceil(b.remaining)}s</i></span>`).join(''));
 }
 
 // --- the nudge for new players ----------------------------------------------
@@ -193,19 +210,17 @@ function questLine() {
 
 function renderQuest() {
   const line = tutorialActive() ? '' : questLine();
-  if (refs.quest.dataset.line === line) return;
-  refs.quest.dataset.line = line;
-  refs.quest.innerHTML = line ? `<span class="quest-dot"></span>${line}` : '';
+  setHTML(refs.quest, line ? `<span class="quest-dot"></span>${line}` : '');
   refs.quest.classList.toggle('is-on', !!line);
 }
 
 function renderHud() {
-  refs.money.textContent = fmtMoney(state.money);
-  refs.rate.textContent = fmtRate(incomePerSec());
-  refs.pills.innerHTML = `
+  setText(refs.money, fmtMoney(state.money));
+  setText(refs.rate, fmtRate(incomePerSec()));
+  setHTML(refs.pills, `
     <span class="pill" title="Parts in the bin">${fmtNum(totalParts(), { int: true })} parts</span>
     <span class="pill" title="Builds on the floor">${fmtNum(state.garage.length, { int: true })} builds</span>
-    ${state.fragments ? `<span class="pill pill-secret" title="Kirkin schematic fragments">${state.fragments}/4 fragments</span>` : ''}`;
+    ${state.fragments ? `<span class="pill pill-secret" title="Kirkin schematic fragments">${state.fragments}/4 fragments</span>` : ''}`);
 }
 
 // --- the golden spanner ------------------------------------------------------
@@ -336,6 +351,16 @@ const shellActions = {
   'shell:mute': () => {
     setMuted(!state.settings.muted);
     refs.muteBtn.innerHTML = icon(state.settings.muted ? 'mute' : 'sound');
+
+  // The bike's click target is a transparent <button> stretched over the art,
+  // and a button swallows wheel events instead of letting them reach the page -
+  // so scrolling with the cursor over the bike did nothing at all. Hand the
+  // wheel to the window ourselves.
+  refs.stageClick.addEventListener('wheel', (ev) => {
+    const unit = ev.deltaMode === 1 ? 16 : (ev.deltaMode === 2 ? window.innerHeight : 1);
+    window.scrollBy(0, ev.deltaY * unit);
+    ev.preventDefault();
+  }, { passive: false });
     if (!state.settings.muted) play('drop');
     if (refs.modal.classList.contains('open')) settingsModal();
   },
@@ -426,6 +451,7 @@ export function initUI(root) {
     tabs: el('tabs'),
     panel: el('panel'),
     stageArt: el('stage-art'),
+    stageClick: el('stage-click'),
     stageInfo: el('stage-info'),
     stageHint: el('stage-hint'),
     buffBar: el('buff-bar'),
