@@ -209,7 +209,7 @@ export const BLUEPRINTS = [
 
   // --- Easter eggs ----------------------------------------------------------
   {
-    id: 'kirkin_g2', name: 'Kirkin G2', kind: 'bike', tier: 4, req: B6(4),
+    id: 'kirkin_g2', name: 'Kirkin G2', kind: 'scooter', tier: 4, req: B6(4),
     extra: [{ slot: 'controller', tier: 4, count: 2 }],
     cash: 1e8,
     base: 2.4e9, speed: 244, range: 610, accel: 0.8,
@@ -217,7 +217,7 @@ export const BLUEPRINTS = [
     desc: 'No catalogue, no dealer, no serial number. Whoever Kirkin is, they solder like a surgeon and they do not answer emails.',
   },
   {
-    id: 'kirkin_g4', name: 'Kirkin G4', kind: 'bike', tier: 5, req: B6(5),
+    id: 'kirkin_g4', name: 'Kirkin G4', kind: 'scooter', tier: 5, req: B6(5),
     exact: { frame: 'frame_t5_b', motor: 'motor_t5_b', controller: 'controller_t5_b' },
     consumes: 'kirkin_g2', fragments: 4, cash: 2e11,
     base: 9e11, speed: 8000, range: 999999, accel: 0.07,
