@@ -75,14 +75,6 @@ are what you put in the showroom window. There is a tier-three bike that looks
 like the best thing in the shop and is not; working out which one is part of
 the fun.
 
-### The golden spanner
-
-Every minute or two a gold-plated 15mm spanner drifts across the screen for
-fourteen seconds. Catch it for one of: **Frenzy** (7x everything for 45s),
-**Click Frenzy** (77x per click for 13s), a cash **Windfall**, a **Hot Streak**
-on crate luck, twelve **free crates**, or a two minute **Golden Hour**. In a
-multiplayer room, everyone else gets 2x for 25 seconds when you catch one.
-
 ### Wheelie mode
 
 Your bike is on a treadmill. **Hold** anywhere on the canvas (or hold `Space` /
@@ -108,7 +100,6 @@ WebRTC, with the host relaying messages to the rest of the room.
   second, showroom bike, builds finished.
 - A shared feed of what everyone is doing.
 - **Post a build** straight into another player's garage.
-- Golden spanners are shared: catching one boosts the whole room.
 
 PeerJS loads from a CDN the first time someone opens a room, so single player
 still works with no network at all. It is a game for people you know - nothing
@@ -222,15 +213,15 @@ existing save.
 ```
 index.html
 audio/           18 generated sound effects
-styles/          base (tokens + layout), ui (components), store (bank, buffs,
-                 spanner, index, tour), fx (motion)
+styles/          base (tokens + layout), ui (components), store (bank, index,
+                 tour), fx (motion)
 tools/           make_sounds.py - bakes audio/ from scratch
 src/
   main.js        boot + the master tick
   core/          state, save/load, events, formatting, rng, clock, audio, debug
   data/          parts, blueprints, crates, upgrades, staff
   systems/       economy, crates, crafting, salvage, market, automation,
-                 buffs, unlocks - all DOM-free
+                 unlocks - all DOM-free
   net/           room.js - peer to peer multiplayer
   ui/            render shell, tutorial, dom helpers, icons, bike art, fx,
                  panels/

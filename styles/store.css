@@ -1,4 +1,4 @@
-/* The bank readout, the nudge line, buff chips, the golden spanner, the network
+/* The bank readout, the nudge line, the network
    roster and the new-player tour. */
 
 /* --- bank readout on the stage --------------------------------------------- */
@@ -52,73 +52,6 @@
 @keyframes quest-pulse {
   0%, 100% { opacity: .35; transform: scale(.8); }
   50% { opacity: 1; transform: scale(1.15); }
-}
-
-/* --- active buffs ---------------------------------------------------------- */
-
-.buff-bar {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  margin-top: 10px;
-}
-.buff-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--c);
-  background: color-mix(in srgb, var(--c) 16%, transparent);
-  color: var(--c);
-  font: 700 10px var(--mono);
-  letter-spacing: .1em;
-  animation: buff-in .3s cubic-bezier(.2, .9, .3, 1.4);
-}
-.buff-chip i { font-style: normal; color: var(--text); opacity: .75; }
-@keyframes buff-in {
-  from { opacity: 0; transform: translateY(6px) scale(.9); }
-  to { opacity: 1; transform: none; }
-}
-
-/* --- golden spanner -------------------------------------------------------- */
-
-.spanner {
-  position: absolute;
-  z-index: 170;
-  width: 62px;
-  height: 62px;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  pointer-events: auto;
-  filter: drop-shadow(0 0 16px rgba(255, 209, 102, .75));
-  animation: spanner-float 2.4s ease-in-out infinite;
-  -webkit-tap-highlight-color: transparent;
-}
-.spanner::after {
-  content: "";
-  position: absolute;
-  inset: -14px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 209, 102, .3), transparent 70%);
-  animation: spanner-halo 1.6s ease-in-out infinite;
-}
-.spanner svg { position: relative; z-index: 1; }
-.spanner:hover { filter: drop-shadow(0 0 24px rgba(255, 245, 200, .95)); }
-.spanner:active { transform: scale(.88); }
-
-@keyframes spanner-float {
-  0%, 100% { transform: translateY(0) rotate(-6deg); }
-  50% { transform: translateY(-12px) rotate(8deg); }
-}
-@keyframes spanner-halo {
-  0%, 100% { opacity: .35; transform: scale(.85); }
-  50% { opacity: .85; transform: scale(1.15); }
 }
 
 /* --- network --------------------------------------------------------------- */

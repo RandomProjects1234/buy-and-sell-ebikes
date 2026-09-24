@@ -70,7 +70,7 @@ export function defaultState() {
     stats: {
       cratesOpened: 0, partsGained: 0, builds: 0, sales: 0,
       salvaged: 0, bestSale: 0, bestBuild: 0, clickEarned: 0, playTime: 0,
-      spanners: 0, gifts: 0,
+      gifts: 0,
     },
 
     settings: { muted: false, reduceMotion: false, volume: 0.9, buyAmount: 1 },

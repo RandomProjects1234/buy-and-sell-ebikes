@@ -104,7 +104,7 @@ export default {
         <div>
           <h2>Shop Network</h2>
           <p class="muted">Play alongside other shops: a live leaderboard, a shared feed, and you
-            can post finished builds to each other. Catching a golden spanner boosts the whole room.</p>
+            can post finished builds to each other.</p>
         </div>
       </div>
       ${lobby(net)}`;

@@ -11,13 +11,11 @@ import { registerActions, initActions, esc, el, isPointerDown, isEditing, eventP
 import { fmtMoney, fmtNum, fmtMult, fmtRate, fmtTime } from '../core/format.js';
 import { bikeSVG } from './bikeArt.js';
 import { icon } from './icons.js';
-import { floatText, burst, toast, bigWin, pop, initFx, updateShake, flash } from './fx.js';
+import { floatText, burst, toast, bigWin, pop, initFx, updateShake } from './fx.js';
 import { play, unlockAudio, setMuted } from '../core/audio.js';
 import { on, EVENTS } from '../core/events.js';
 import { registerLogoClick, SECRET_INFO } from '../systems/unlocks.js';
 import { save, exportSave, importSave, wipeSave } from '../core/save.js';
-import { currentSpanner, grabSpanner, activeBuffs } from '../systems/buffs.js';
-import { shareSpanner, isOnline } from '../net/room.js';
 import {
   initTutorial, renderTutorial, tutorialActions, startTutorial,
   tutorialActive, shouldAutoStart,
@@ -59,7 +57,6 @@ let panelDirty = true;
 let tabsDirty = true;
 let lastShowroomKey = null;
 let lastPanelHTML = '';
-let spannerEl = null;
 let refs = {};
 let shownPanel = null;            // id of the panel currently in the DOM
 const scrollMemory = new Map();   // panel id -> Map(scroll key -> [top, left])
@@ -99,7 +96,6 @@ function shellHTML() {
       <button class="stage-click" data-act="shell:click" id="stage-click" aria-label="Test ride the bike for money"></button>
       <div class="stage-info" id="stage-info"></div>
       <div class="stage-hint" id="stage-hint"></div>
-      <div class="buff-bar" id="buff-bar"></div>
       <div class="quest" id="quest"></div>
     </section>
 
@@ -262,12 +258,6 @@ function renderStage() {
     `<b>${fmtMoney(cv)}</b> per test ride &middot; <span class="rank">${rankFor(state.lifetime)}</span>`);
 }
 
-function renderBuffs() {
-  const buffs = activeBuffs();
-  setHTML(refs.buffBar, buffs.map((b) => `<span class="buff-chip" style="--c:${b.color}">
-      ${esc(b.name)}<i>${Math.ceil(b.remaining)}s</i></span>`).join(''));
-}
-
 // --- the nudge for new players ----------------------------------------------
 
 function questLine() {
@@ -295,36 +285,6 @@ function renderHud() {
     <span class="pill" title="Parts in the bin">${fmtNum(totalParts(), { int: true })} parts</span>
     <span class="pill" title="Builds on the floor">${fmtNum(state.garage.length, { int: true })} builds</span>
     ${state.fragments ? `<span class="pill pill-secret" title="Kirkin schematic fragments">${state.fragments}/4 fragments</span>` : ''}`);
-}
-
-// --- the golden spanner ------------------------------------------------------
-
-const SPANNER_SVG = `<svg viewBox="0 0 48 48" width="62" height="62" aria-hidden="true">
-  <defs><linearGradient id="spg" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0%" stop-color="#fff3c4"/><stop offset="45%" stop-color="#ffd166"/>
-    <stop offset="100%" stop-color="#c8860d"/></linearGradient></defs>
-  <g transform="rotate(-38 24 24)">
-    <path d="M30 6a9 9 0 0 0-8.4 12.2L8 31.8a4 4 0 0 0 5.7 5.7l13.6-13.6A9 9 0 1 0 30 6zm0 4a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"
-          fill="url(#spg)" stroke="#8a5c05" stroke-width="1.2"/>
-  </g></svg>`;
-
-function renderSpanner() {
-  const sp = currentSpanner();
-  if (!sp) {
-    if (spannerEl) { spannerEl.remove(); spannerEl = null; }
-    return;
-  }
-  if (!spannerEl) {
-    spannerEl = document.createElement('button');
-    spannerEl.className = 'spanner';
-    spannerEl.title = 'Golden spanner - grab it';
-    spannerEl.dataset.act = 'shell:spanner';
-    spannerEl.innerHTML = SPANNER_SVG;
-    refs.fx.appendChild(spannerEl);
-    play('golden');
-  }
-  spannerEl.style.left = `${sp.x * 100}%`;
-  spannerEl.style.top = `${sp.y * 100}%`;
 }
 
 // --- modals -----------------------------------------------------------------
@@ -389,20 +349,6 @@ const shellActions = {
       burst(x, y, { count: 10, colors: ['#ffd166', '#fff'], power: 0.7 });
       play('clickBig');
     }
-    markDirty();
-  },
-
-  'shell:spanner': (ds, ev, target) => {
-    unlockAudio();
-    const res = grabSpanner();
-    if (!res) return;
-    const { x, y } = eventPoint(ev, target);
-    play('buff');
-    burst(x, y, { count: 26, colors: ['#ffd166', '#fff3c4', '#fff'], power: 1.4, size: 9 });
-    flash('rgba(255,209,102,.35)', 380);
-    if (spannerEl) { spannerEl.remove(); spannerEl = null; }
-    bigWin({ text: res.buff.name, sub: res.sub, kind: 'mythic' });
-    if (isOnline()) shareSpanner();
     markDirty();
   },
 
@@ -518,11 +464,9 @@ export function initUI(root) {
     stageClick: el('stage-click'),
     stageInfo: el('stage-info'),
     stageHint: el('stage-hint'),
-    buffBar: el('buff-bar'),
     quest: el('quest'),
     modal: el('modal-root'),
     muteBtn: el('mute-btn'),
-    fx: el('fx-layer'),
   };
 
   initFx();
@@ -560,8 +504,6 @@ export function renderFrame(dt, now) {
   updateShake(now);
   renderHud();
   renderStage();
-  renderBuffs();
-  renderSpanner();
   renderQuest();
   renderTutorial();
 

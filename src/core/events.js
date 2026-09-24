@@ -34,7 +34,6 @@ export const EVENTS = {
   TOAST: 'toast',                 // { text, kind }
   DIRTY: 'dirty',                 // panel invalidation hint
   BIG_WIN: 'bigwin',              // { text, sub, kind }
-  BUFF: 'buff',                   // { buff, sub, pos }
   ACHIEVEMENT: 'achievement',     // { achievement }
   NET: 'net',                     // { status, code, players, feed }
 };

@@ -102,14 +102,6 @@ export const STEPS = [
     next: 'Good',
   },
   {
-    id: 'spanner',
-    title: 'Watch for the golden spanner',
-    body: `Every minute or two a gold spanner drifts across the screen for a few
-           seconds. Catch it for a huge temporary boost - seven times income, or
-           seventy-seven times your clicks, or a briefcase full of cash.`,
-    next: 'I will grab it',
-  },
-  {
     id: 'tabs',
     target: '.tabs',
     title: 'The rest of the shop',

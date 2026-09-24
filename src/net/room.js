@@ -15,7 +15,6 @@
 import { state } from '../core/state.js';
 import { emit, EVENTS } from '../core/events.js';
 import { incomePerSec } from '../systems/economy.js';
-import { addBuff } from '../systems/buffs.js';
 import { uid } from '../core/rng.js';
 
 const PEER_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js';
@@ -171,14 +170,6 @@ function handle(msg, conn) {
       if (isHost) relay(msg, conn && conn.peer);
       break;
 
-    case 'spanner':
-      // Everyone in the room rides on one player's luck for a moment.
-      addBuff('shared_spanner', 25);
-      pushFeed(`${msg.name} caught a golden spanner - everyone gets 2x for 25s.`, 'good');
-      emit(EVENTS.TOAST, { text: `${msg.name} caught a spanner. 2x for everyone!`, kind: 'good' });
-      if (isHost) relay(msg, conn && conn.peer);
-      break;
-
     case 'gift': {
       if (isHost && msg.to !== myId) { relay(msg, conn && conn.peer); return; }
       if (msg.to !== myId) return;
@@ -318,14 +309,6 @@ export function announce(text, kind = 'info') {
   const line = `${playerName()}: ${text}`;
   pushFeed(line, kind);
   const msg = { t: 'feed', text: line, kind };
-  if (isHost) relay(msg);
-  else for (const conn of conns.values()) send(conn, msg);
-}
-
-/** Tell the room you caught a spanner; everyone gets a slice of it. */
-export function shareSpanner() {
-  if (status !== 'open') return;
-  const msg = { t: 'spanner', name: playerName() };
   if (isHost) relay(msg);
   else for (const conn of conns.values()) send(conn, msg);
 }

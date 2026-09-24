@@ -7,7 +7,6 @@
 import { state } from '../core/state.js';
 import { UPGRADES } from '../data/upgrades.js';
 import { emit, EVENTS } from '../core/events.js';
-import { buffIncomeMult, buffClickMult, buffLuck } from './buffs.js';
 
 const BASE_CLICK = 1;
 
@@ -29,11 +28,6 @@ function prodEffect(key) {
   return total;
 }
 
-/** Everything that multiplies every dollar - currently just golden spanners. */
-export function globalMult() {
-  return buffIncomeMult();
-}
-
 /** How much the bike on display adds to each click. */
 export function showroomBonus() {
   const bike = state.showroom;
@@ -44,11 +38,11 @@ export function showroomBonus() {
 
 export function clickValue() {
   const flat = BASE_CLICK + sumEffect('clickAdd');
-  return flat * prodEffect('clickMult') * showroomBonus() * globalMult() * buffClickMult();
+  return flat * prodEffect('clickMult') * showroomBonus();
 }
 
 export function sellMult() {
-  return prodEffect('sellMult') * globalMult();
+  return prodEffect('sellMult');
 }
 
 export function crateCost(crate) {
@@ -58,7 +52,7 @@ export function crateCost(crate) {
 
 /** Chance for a crate drop to roll one part tier higher than the table said. */
 export function crateLuck() {
-  return Math.min(0.9, sumEffect('luck') + buffLuck());
+  return Math.min(0.9, sumEffect('luck'));
 }
 
 export function autoMult() {
