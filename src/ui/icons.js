@@ -31,7 +31,6 @@ export const ICONS = {
   mute: wrap('<path d="M11 5L6 9H2v6h4l5 4z"/><path d="M22 9l-6 6M16 9l6 6"/>'),
   sound: wrap('<path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>'),
   book: wrap('<path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h7M8 11h7M8 15h5"/>'),
-  fragment: wrap('<path d="M6 3h8l4 5-8 13-6-9z"/><path d="M6 3l4 9 8-4"/>'),
 };
 
 export function slotIcon(slot) { return SLOT_ICONS[slot] || ICONS.gear; }

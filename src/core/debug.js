@@ -4,10 +4,9 @@
 import { state, addPart, setState, defaultState } from './state.js';
 import { partsOfTier, TIERS } from '../data/parts.js';
 import { BLUEPRINTS } from '../data/blueprints.js';
-import { CRATES } from '../data/crates.js';
 import { addMoney } from '../systems/economy.js';
 import { tickAutomation } from '../systems/automation.js';
-import { checkUnlocks, checkFragments, unlockSecret } from '../systems/unlocks.js';
+import { checkUnlocks } from '../systems/unlocks.js';
 import { fmtMoney } from './format.js';
 import { save } from './save.js';
 import { emit, EVENTS } from './events.js';
@@ -25,7 +24,6 @@ function html() {
   <div class="debug-row">${TIERS.map((t) => `<button class="btn btn-tiny" data-act="dbg:parts" data-tier="${t.id}">+40 ${t.name}</button>`).join('')}</div>
   <div class="debug-row">
     <button class="btn btn-tiny" data-act="dbg:unlockall">Unlock all blueprints</button>
-    <button class="btn btn-tiny" data-act="dbg:fragment">+1 fragment</button>
   </div>
   <div class="debug-row">
     <button class="btn btn-tiny" data-act="dbg:ff" data-s="60">FF 1 min</button>
@@ -42,16 +40,14 @@ const actions = {
   },
   'dbg:unlockall': () => {
     for (const bp of BLUEPRINTS) state.unlocked[bp.id] = true;
-    for (const c of CRATES) unlockSecret(c.id);
     state.wheelie.unlocked = true;
     emit(EVENTS.TOAST, { text: 'Everything unlocked.', kind: 'info' });
   },
-  'dbg:fragment': () => { state.fragments += 1; unlockSecret('black_site'); checkFragments(); },
   'dbg:ff': (ds) => {
     const seconds = Number(ds.s);
     const step = Math.max(1, seconds / 600);
     for (let t = 0; t < seconds; t += step) tickAutomation(step);
-    emit(EVENTS.TOAST, { text: `Fast-forwarded ${seconds}s of staff work.`, kind: 'info' });
+    emit(EVENTS.TOAST, { text: `Fast-forwarded ${seconds}s of automation.`, kind: 'info' });
   },
   'dbg:reset': () => { setState(defaultState()); save(); location.reload(); },
   'dbg:close': () => toggle(false),

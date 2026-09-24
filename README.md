@@ -2,13 +2,12 @@
 
 An idle/clicker tycoon about the least respectable corner of the e-mobility
 industry. You start with one squeaky **Hyper B** and no money. You end up
-assembling **nuclear engine bikes** that do 3,000 mph, in a warehouse staffed
-by people you never have to talk to.
+assembling **nuclear engine bikes** that do 3,000 mph, in a warehouse that
+mostly runs itself.
 
 Click the bike to hustle a few dollars → buy a crate of dodgy parts → build a
-scooter or an e-bike at the workbench → flip it → reinvest in better crates,
-staff and facilities → automate the whole chain and watch the money come in
-while you are not even looking.
+scooter or an e-bike at the workbench → flip it → reinvest in better crates
+and facilities → watch the parts pile up while you are not even looking.
 
 **[Play it in your browser](https://randomprojects1234.github.io/buy-and-sell-ebikes/)**
 
@@ -56,9 +55,8 @@ it any time from the gear icon.
 | **Crates** | Spend money on crates. Better crates roll better part tiers: Scrap -> Standard -> Performance -> Exotic -> Hypertech -> Nuclear. Drops are nudged toward the slots you are short of. |
 | **Workbench** | Pick a blueprint, fit one part per slot, build it. Parts better than the recipe demands raise **quality**, which raises the sale price. Surplus junk salvages into the tier above at 12:1. |
 | **Garage** | Sell finished builds, or put one in the showroom window. |
-| **Upgrades** | One-off permanent buys: click value, sale price, crate luck, staff speed, wheelie payout. |
-| **Staff** | Four roles automate one stage each. Three of a role unlocks its **manager**, which changes how that stage works, not just how fast. |
-| **Facilities** | Bike farms that print parts of a fixed tier forever. Worth little without Wrenches to build with them - that is the mid-game trade-off. |
+| **Upgrades** | One-off permanent buys: click value, sale price, crate luck, automation speed, wheelie payout. |
+| **Facilities** | Bike farms that print parts of a fixed tier forever - the idle half of the game. |
 | **Wheelie** | A 40 second skill minigame on the shop treadmill (see below). |
 | **Index** | The catalogue: every build, part and crate in the game, with what each recipe needs and what you are holding. Things you have not met yet stay redacted. |
 | **Network** | Multiplayer rooms (see below). |
@@ -66,8 +64,7 @@ it any time from the gear icon.
 **The ladder.** Scrap hacks → parody commuters → performance builds → the
 exotics (including one very shiny trap) → the **Vark Hunter** that exists to
 beat it → **Hypertech**: Stark Vark GT, Tungsten Bull, Carbon Ghost and the
-Tesseract TX flagship → nuclear engine bikes at 3,000 mph. 26 builds in all,
-plus two that are not in any catalogue.
+Tesseract TX flagship → nuclear engine bikes at 3,000 mph. 26 builds in all.
 
 **Scooters vs bikes.** Scooters take four parts and flip fast and cheap - they
 are the money loop. E-bikes take six, cost more and are worth more, and they
@@ -105,24 +102,13 @@ PeerJS loads from a CDN the first time someone opens a room, so single player
 still works with no network at all. It is a game for people you know - nothing
 is validated against cheating, and the room code is the whole security model.
 
-### Secrets
+### The Kirkin line
 
-There are two bikes that are not in any shop list, and a crate you are not
-supposed to be able to order.
-
-<details>
-<summary>Spoilers</summary>
-
-- **Kirkin G2** - click the shop sign in the top-left 100 times. The sign
-  rattles at 25 and 60 if you are on the right track.
-- **Black Site Pallet** - appears in the crate shop once you have found your
-  first Kirkin schematic fragment. Fragments drop from Anomaly Crates at about
-  0.4%, and from the pallet itself at 5%.
-- **Kirkin G4** - collect four fragments to learn the recipe. Building it needs
-  six Nuclear parts, a $200B assembly fee, and it *consumes a finished Kirkin
-  G2* - from the garage or straight out of the showroom window.
-
-</details>
+Two builds above the top of the normal ladder. The **Kirkin G2** unlocks like
+any other build once you have earned enough; the **Kirkin G4** needs six
+Nuclear parts, a $200B assembly fee, and it *consumes a finished G2* - from the
+garage or straight out of the showroom window. The **Black Site Pallet** crate
+is where the Nuclear parts come from.
 
 ## Sound
 
@@ -150,23 +136,18 @@ Autosaves to `localStorage` every 15 seconds, when the tab is hidden, and on
 close. Settings (the gear icon) has export/import as a base64 blob, a replay
 button for the tour, and a wipe button for when you want to start clean.
 
-Coming back later pays offline earnings: the first minute of staff work is
-simulated properly - real crates, real builds, real sales - and the rest is
-paid at the automated income rate your staff were achieving when you left, at
-60% efficiency, capped at 8 hours.
-
 ## Debug / cheat mode
 
 Add `?debug` to the URL or press `Ctrl+Shift+D`. Gives you money grants, part
-grants per tier, "unlock all blueprints", fragments, a fast-forward for staff
-work, and a hard reset.
+grants per tier, "unlock all blueprints", a fast-forward for automation, and a
+hard reset.
 
 The console hook is `window.__BSE`:
 
 ```js
 __BSE.give(1e9);        // cash
 __BSE.parts(4, 20);     // 20 of every Hypertech part
-__BSE.ff(3600);         // fast-forward an hour of staff work
+__BSE.ff(3600);         // fast-forward an hour of automation
 __BSE.unlockAll();
 __BSE.state;            // live state (a getter, so it never goes stale)
 __BSE.wheelie.snapshot();

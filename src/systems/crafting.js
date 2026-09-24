@@ -2,8 +2,8 @@
 // WORKBENCH
 // ---------------------------------------------------------------------------
 // A craft takes a blueprint plus one fitted part per slot. Anything the recipe
-// asks for on top of that (extras, fragments, a sacrificed build, an assembly
-// fee) is resolved here too.
+// asks for on top of that (extras, a sacrificed build, an assembly fee) is
+// resolved here too.
 
 import { state, countPart, removePart } from '../core/state.js';
 import { PARTS, SLOT_BY_ID } from '../data/parts.js';
@@ -93,9 +93,6 @@ export function validate(bp, selection) {
   const extras = extraPlan(bp, used);
   if (extras === null) return { ok: false, reason: 'Missing the extra trim parts' };
 
-  if (bp.fragments && state.fragments < bp.fragments) {
-    return { ok: false, reason: `Needs ${bp.fragments} schematic fragments` };
-  }
   // The donor build counts whether it is on the floor or in the window - being
   // punished for displaying your best bike would be a nasty surprise.
   if (bp.consumes && !findDonor(bp.consumes)) {
@@ -143,7 +140,6 @@ export function craft(bpId, selection) {
   if (bp.cash && !spend(bp.cash)) return null;
   for (const slot of Object.keys(selection)) removePart(selection[slot], 1);
   for (const partId of check.extras) removePart(partId, 1);
-  if (bp.fragments) state.fragments -= bp.fragments;
   if (bp.consumes) {
     const donor = findDonor(bp.consumes);
     if (donor && donor.where === 'garage') state.garage.splice(donor.idx, 1);

@@ -55,7 +55,7 @@ export const STEPS = [
     panel: 'crates',
     title: 'Buy a crate of junk',
     body: `Parts come in crates from a man called Big Dave. Each <b>Scrap Crate</b> is
-           three random parts, no refunds. Open three - that is enough bits to put a
+           two random parts, no refunds. Open a few - that is enough bits to put a
            scooter together.`,
     hint: () => `${state.stats.cratesOpened} of 3 crates opened`,
     wait: () => state.stats.cratesOpened >= 3,
@@ -91,15 +91,6 @@ export const STEPS = [
     body: `<b>Upgrades</b> are one-off permanent buys - worth more per click, worth more
            per sale, better crate luck. Grab them whenever you can afford one.`,
     next: 'Makes sense',
-  },
-  {
-    id: 'staff',
-    title: 'Then hire someone to do it',
-    body: `Two more tabs appear as you earn. <b>Staff</b> each automate one link of the
-           loop - buying crates, salvaging, building, selling - and they keep working
-           while the tab is closed. <b>Facilities</b> print parts on their own. That is
-           the idle half of the game, and it is where the real money ends up.`,
-    next: 'Good',
   },
   {
     id: 'tabs',

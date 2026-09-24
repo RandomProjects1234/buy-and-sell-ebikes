@@ -86,7 +86,7 @@ function chooseBlueprint() {
   if (!state.managers.wrench) return BP_BY_ID[state.cfg.wrenchBlueprint] || null;
   let best = null;
   for (const bp of visibleBlueprints()) {
-    if (bp.consumes || bp.fragments) continue;   // never auto-eat a secret build
+    if (bp.consumes) continue;   // never auto-eat a build
     if (best && bp.base <= best.base) continue;
     const fit = autoFill(bp, 'cheap');
     if (fit && validate(bp, fit).ok) best = bp;

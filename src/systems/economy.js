@@ -72,16 +72,12 @@ export function demandFloor(bp) {
   return Math.min(0.95, base + sumEffect('demandFloor'));
 }
 
-export function fragmentLuck() {
-  return 1;
-}
-
 // --- money ------------------------------------------------------------------
 
 let incomeBucket = 0;
 let incomeRate = 0;   // smoothed $/sec, for the header and wheelie scaling
 let autoBucket = 0;
-let autoRate = 0;     // same, but only income the staff produced
+let autoRate = 0;     // same, but only income the automation produced
 
 export function addMoney(amount, source = 'misc') {
   if (!isFinite(amount) || amount <= 0) return 0;
@@ -110,7 +106,7 @@ export function sampleIncome(dt) {
   autoRate += (autoBucket / dt - autoRate) * blend;
   incomeBucket = 0;
   autoBucket = 0;
-  // Persisted so offline earnings can be paid at the rate the staff were
+  // Persisted so offline earnings can be paid at the rate the automation was
   // actually achieving when the tab closed.
   state.stats.autoRate = autoRate;
 }

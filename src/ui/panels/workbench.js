@@ -92,7 +92,6 @@ function requirementNotes(bp) {
     notes.push(`${extra.count}x extra ${SLOT_BY_ID[extra.slot].name.toLowerCase()} (${TIERS[extra.tier].name}+)`);
   }
   if (bp.cash) notes.push(`${fmtMoney(bp.cash)} assembly fee`);
-  if (bp.fragments) notes.push(`${bp.fragments} schematic fragments (${state.fragments}/${bp.fragments})`);
   if (bp.consumes) notes.push(`consumes one finished ${BP_BY_ID[bp.consumes].name}`);
   return notes;
 }

@@ -4,9 +4,8 @@ import { state, addPart } from '../core/state.js';
 import { CRATES, CRATE_BY_ID } from '../data/crates.js';
 import { PARTS, partsOfTier, TIERS } from '../data/parts.js';
 import { weightedPick, chance } from '../core/rng.js';
-import { crateCost, crateLuck, fragmentLuck, spend } from './economy.js';
+import { crateCost, crateLuck, spend } from './economy.js';
 import { emit, EVENTS } from '../core/events.js';
-import { unlockSecret } from './unlocks.js';
 
 const MAX_TIER = TIERS.length - 1;
 
@@ -52,8 +51,8 @@ function rollDrop(crate) {
 }
 
 /**
- * Open one crate. `paid` = false skips the money check (staff pay separately,
- * farms and debug grants are free).
+ * Open one crate. `paid` = false skips the money check (automation pays
+ * separately, farms and debug grants are free).
  */
 export function openCrate(crateId, { paid = true, silent = false } = {}) {
   const crate = CRATE_BY_ID[crateId];
@@ -67,23 +66,11 @@ export function openCrate(crateId, { paid = true, silent = false } = {}) {
     drops.push(PARTS[partId]);
   }
 
-  let fragment = false;
-  if (crate.fragmentChance && chance(crate.fragmentChance * fragmentLuck())) {
-    state.fragments += 1;
-    fragment = true;
-    unlockSecret('black_site');
-    emit(EVENTS.BIG_WIN, {
-      text: 'SCHEMATIC FRAGMENT',
-      sub: `Torn corner of something called a Kirkin. ${state.fragments}/4 recovered.`,
-      kind: 'mythic',
-    });
-  }
-
   state.crateOpens[crateId] = (state.crateOpens[crateId] || 0) + 1;
   state.stats.cratesOpened += 1;
 
-  if (!silent) emit(EVENTS.CRATE_OPENED, { crate, drops, fragment });
-  return { crate, drops, fragment };
+  if (!silent) emit(EVENTS.CRATE_OPENED, { crate, drops });
+  return { crate, drops };
 }
 
 /** Buy + open up to `count` crates, stopping when the money runs out. */
@@ -100,7 +87,6 @@ export function buyCrates(crateId, count = 1) {
       crate: CRATE_BY_ID[crateId],
       drops: all,
       bulk: results.length,
-      fragment: results.some((r) => r.fragment),
     });
   }
   return results;

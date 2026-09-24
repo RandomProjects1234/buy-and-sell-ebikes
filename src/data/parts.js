@@ -213,11 +213,3 @@ export const SIGNATURE = {
   GRAVITON_BRAKES: 'brakes_t5_a',
   CAUSALITY_ECU: 'controller_t5_b',
 };
-
-// A one-off collectible, not a slot part: four of these unlock the Kirkin G4.
-export const KIRKIN_FRAGMENT = {
-  id: 'kirkin_fragment',
-  name: 'Kirkin Schematic Fragment',
-  flavor: 'A quarter of a blueprint for a bike nobody will admit exists.',
-  tier: 5,
-};

@@ -14,7 +14,6 @@ import { icon } from './icons.js';
 import { floatText, burst, toast, bigWin, pop, initFx, updateShake } from './fx.js';
 import { play, unlockAudio, setMuted } from '../core/audio.js';
 import { on, EVENTS } from '../core/events.js';
-import { registerLogoClick, SECRET_INFO } from '../systems/unlocks.js';
 import { save, exportSave, importSave, wipeSave } from '../core/save.js';
 import {
   initTutorial, renderTutorial, tutorialActions, startTutorial,
@@ -25,7 +24,6 @@ import cratesPanel from './panels/crates.js';
 import workbenchPanel from './panels/workbench.js';
 import garagePanel from './panels/garage.js';
 import upgradesPanel from './panels/upgrades.js';
-import staffPanel from './panels/staff.js';
 import farmsPanel from './panels/farms.js';
 import wheeliePanel from './panels/wheelie.js';
 import networkPanel from './panels/network.js';
@@ -33,7 +31,7 @@ import indexPanel from './panels/index.js';
 
 const PANELS = [
   cratesPanel, workbenchPanel, garagePanel, upgradesPanel,
-  staffPanel, farmsPanel, wheeliePanel, indexPanel, networkPanel,
+  farmsPanel, wheeliePanel, indexPanel, networkPanel,
 ];
 
 // Shop ranks, Cookie Clicker style: a title that quietly escalates.
@@ -266,7 +264,6 @@ function questLine() {
   if (!s.stats.cratesOpened) return 'Buy a <b>Scrap Crate</b> in the Crates tab - that is where parts come from.';
   if (!s.stats.builds) return 'Open a few crates, then build a <b>Scoot Lite</b> at the Workbench.';
   if (!s.stats.sales) return 'Your build is in the <b>Garage</b>. Sell it.';
-  if (!Object.keys(s.workers).length && s.lifetime >= 2500) return 'You can afford staff. Hire a <b>Crate Runner</b> in the Staff tab.';
   if (s.wheelie.unlocked && !s.wheelie.runs) return 'The treadmill out back is free. Try <b>Wheelie mode</b>.';
   if (!Object.keys(s.farms).length && s.lifetime >= 4000) return 'A <b>Scrap Yard</b> in Facilities makes parts while you do something else.';
   return '';
@@ -283,8 +280,7 @@ function renderHud() {
   setText(refs.rate, fmtRate(incomePerSec()));
   setHTML(refs.pills, `
     <span class="pill" title="Parts in the bin">${fmtNum(totalParts(), { int: true })} parts</span>
-    <span class="pill" title="Builds on the floor">${fmtNum(state.garage.length, { int: true })} builds</span>
-    ${state.fragments ? `<span class="pill pill-secret" title="Kirkin schematic fragments">${state.fragments}/4 fragments</span>` : ''}`);
+    <span class="pill" title="Builds on the floor">${fmtNum(state.garage.length, { int: true })} builds</span>`);
 }
 
 // --- modals -----------------------------------------------------------------
@@ -354,10 +350,8 @@ const shellActions = {
 
   'shell:logo': (ds, ev, target) => {
     unlockAudio();
-    const res = registerLogoClick();
     pop(target);
-    play('tickUp', { rate: 1 + Math.min(0.8, (res.count || 0) / SECRET_INFO.LOGO_CLICKS_FOR_G2) });
-    if (res.unlocked) markTabsDirty();
+    play('tickUp');
   },
 
   'shell:tab': (ds) => {
@@ -433,7 +427,7 @@ const shellActions = {
 
   'shell:wipe': () => {
     modal(`<h2>Wipe everything?</h2>
-      <p class="muted">Money, parts, builds, staff, upgrades, blueprints - the lot. There is no undo.</p>
+      <p class="muted">Money, parts, builds, upgrades, blueprints - the lot. There is no undo.</p>
       <div class="modal-actions">
         <button class="btn btn-danger" data-act="shell:dowipe">Yes, burn it down</button>
         <button class="btn btn-primary" data-act="shell:closemodal">Keep my shop</button>

@@ -35,7 +35,6 @@ function reqLine(bp) {
       ${extra.count}x ${SLOT_BY_ID[extra.slot].name} ${TIERS[extra.tier].name}+</span>`);
   }
   if (bp.cash) bits.push(`<span class="ix-req" style="--c:#49c97a">${fmtMoney(bp.cash)} fee</span>`);
-  if (bp.fragments) bits.push(`<span class="ix-req" style="--c:#8ef6ff">${bp.fragments} fragments</span>`);
   if (bp.consumes) bits.push(`<span class="ix-req" style="--c:#8ef6ff">eats a finished build</span>`);
   return bits.join('');
 }
@@ -120,8 +119,7 @@ function crateRow(crate) {
     <span class="ix-dot"></span>
     <div class="ix-main">
       <b>${esc(crate.name)}${opened ? ` <u>opened x${fmtNum(opened, { int: true })}</u>` : ''}</b>
-      <i>${fmtMoney(crate.cost)} &middot; ${crate.drops} parts${crate.fragmentChance
-    ? ` &middot; ${(crate.fragmentChance * 100).toFixed(1)}% fragment` : ''}</i>
+      <i>${fmtMoney(crate.cost)} &middot; ${crate.drops} parts</i>
       <div class="ix-reqs">${crate.table.map(([t, w]) =>
     `<span class="ix-req" style="--c:${TIERS[t].color}">${TIERS[t].name} ${((w / total) * 100).toFixed(0)}%</span>`).join('')}</div>
       <p class="flavor">${esc(crate.desc)}</p>

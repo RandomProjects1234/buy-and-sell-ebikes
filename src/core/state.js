@@ -39,10 +39,8 @@ export function defaultState() {
     money: 0,
     lifetime: 0,        // earned all time - drives unlocks
     clicks: 0,
-    logoClicks: 0,
 
     parts: {},          // partId -> count
-    fragments: 0,       // Kirkin schematic fragments
     garage: [],           // finished builds waiting to be sold
     showroom: starterBike(), // the build on display (boosts click income)
 
@@ -63,7 +61,7 @@ export function defaultState() {
     sold: {},           // blueprintId -> count
     demand: {},         // blueprintId -> 0..1 market saturation
     unlocked: Object.fromEntries(STARTER_BLUEPRINTS.map((id) => [id, true])),
-    secrets: {},        // secretId -> true (kirkin_g2, black_site, ...)
+    secrets: {},        // secretId -> true (hidden content only)
 
     wheelie: { best: 0, runs: 0, earned: 0, unlocked: false },
 
@@ -95,7 +93,7 @@ export function migrate(loaded) {
   const merged = deepMerge(base, loaded || {});
   merged.v = SAVE_VERSION;
   // Guard against corrupted numbers making the whole UI read NaN.
-  for (const key of ['money', 'lifetime', 'clicks', 'logoClicks', 'fragments']) {
+  for (const key of ['money', 'lifetime', 'clicks']) {
     if (!isFinite(merged[key])) merged[key] = 0;
   }
   if (!Array.isArray(merged.garage)) merged.garage = [];

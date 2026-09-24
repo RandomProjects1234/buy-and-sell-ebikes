@@ -12,7 +12,7 @@ import { initDebug } from './core/debug.js';
 import { sampleIncome, seedIncomeRate } from './systems/economy.js';
 import { tickAutomation, runOffline } from './systems/automation.js';
 import { tickDemand } from './systems/market.js';
-import { checkUnlocks, checkFragments } from './systems/unlocks.js';
+import { checkUnlocks } from './systems/unlocks.js';
 import { tickNet } from './net/room.js';
 import { update as updateWheelie, draw as drawWheelie } from './minigame/wheelie.js';
 
@@ -38,7 +38,6 @@ function boot() {
     updateWheelie(dt);
     sampleIncome(dt);
     checkUnlocks();
-    checkFragments();
     tickNet(dt);
     state.time.lastTick = Date.now();
   });
