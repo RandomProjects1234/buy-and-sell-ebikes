@@ -130,6 +130,25 @@ a few milliseconds, which you can hear on a click; longer cues are mp3. 204KB
 for the whole set. If a file fails to load, that cue falls back to a
 synthesised WebAudio voice rather than going silent.
 
+### Music
+
+The background track is **"Fluffing a Duck" by Kevin MacLeod**
+([incompetech.com](https://incompetech.com)), licensed under
+[Creative Commons: By Attribution 4.0](https://creativecommons.org/licenses/by/4.0/).
+It is the one file in `audio/` we did not make (`audio/music.mp3`), so it is
+not covered by this repo's MIT licence. It starts on your first click or key
+press, loops gaplessly from a decoded WebAudio buffer, and has its own toggle
+(the note button in the top bar, or Settings) separate from the sound effects.
+
+## Look
+
+A sunset showroom: the bike stands on a neon turntable in front of a striped
+sun and a city skyline, and the sky changes with the tier of the bike in the
+window - warm afternoon for scrap, a violet night for exotics, a red dusk for
+nuclear builds (`src/ui/scene.js`). Every tab has its own colour and the panel
+underneath takes it on; cards and rows are tinted by the tier, crate or upgrade
+group they belong to (`styles/theme.css`).
+
 ## Saving
 
 Autosaves to `localStorage` every 15 seconds, when the tab is hidden, and on
@@ -184,7 +203,7 @@ Everything craftable, droppable or purchasable is plain data in `src/data/`:
 | `blueprints.js` | a new bike or scooter; `req` sets the minimum part tier per slot, `exact` demands a specific part, `extra` eats filler parts, `consumes` eats a finished build |
 | `crates.js` | a new crate and its loot table |
 | `upgrades.js` | a new upgrade; the `effect` keys are documented at the top of the file |
-| `staff.js` | staff roles and facilities |
+| `staff.js` | facilities (plus the retired staff roles, kept so old saves load) |
 
 Part ids are structural (`motor_t3_b`), so renaming a part never breaks an
 existing save.
@@ -193,22 +212,23 @@ existing save.
 
 ```
 index.html
-audio/           18 generated sound effects
+audio/           18 generated sound effects + the music track
 styles/          base (tokens + layout), ui (components), store (bank, index,
-                 tour), fx (motion)
+                 tour), fx (motion), theme (colour layer + showroom scene)
 tools/           make_sounds.py - bakes audio/ from scratch
 src/
   main.js        boot + the master tick
   core/          state, save/load, events, formatting, rng, clock, audio, debug
-  data/          parts, blueprints, crates, upgrades, staff
+  data/          parts, blueprints, crates, upgrades, facilities
   systems/       economy, crates, crafting, salvage, market, automation,
                  unlocks - all DOM-free
   net/           room.js - peer to peer multiplayer
-  ui/            render shell, tutorial, dom helpers, icons, bike art, fx,
-                 panels/
+  ui/            render shell, tutorial, dom helpers, icons, bike art,
+                 showroom scene, fx, panels/
   minigame/      wheelie.js
 ```
 
 ## Licence
 
-MIT - see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE). The music track is the exception: it is
+CC BY 4.0, Kevin MacLeod (see [Music](#music)).

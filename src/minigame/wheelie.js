@@ -248,11 +248,13 @@ function nosePoint(w, h) {
 
 // --- drawing ----------------------------------------------------------------
 
+const BUILDING_COLORS = ['#3a1a78', '#4b1f8f', '#2e1766', '#5a2596'];
+
 function drawBelt(w, h) {
   const y = h * BELT_Y;
-  ctx.fillStyle = '#10141c';
+  ctx.fillStyle = '#1e0f47';
   ctx.fillRect(0, y, w, h - y);
-  ctx.strokeStyle = 'rgba(255,255,255,.14)';
+  ctx.strokeStyle = 'rgba(255,122,200,.35)';
   ctx.lineWidth = 3;
   const spacing = 46;
   const offset = -(game.belt % spacing);
@@ -262,8 +264,8 @@ function drawBelt(w, h) {
     ctx.lineTo(x - 16, h - 8);
     ctx.stroke();
   }
-  ctx.strokeStyle = 'rgba(255,209,102,.5)';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#ff7ac8';
+  ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(0, y);
   ctx.lineTo(w, y);
@@ -408,12 +410,12 @@ function drawPickups(w, h) {
 
 function drawHud(w, h) {
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#e8ecf5';
+  ctx.fillStyle = '#ffffff';
   ctx.font = '700 26px ui-sans-serif, system-ui, sans-serif';
   ctx.fillText(fmtNum(Math.floor(game.score), { int: true }) + ' pts', 20, 40);
 
   ctx.font = '600 14px ui-monospace, monospace';
-  ctx.fillStyle = game.nitro > 0 ? '#8ef6ff' : '#9aa3b5';
+  ctx.fillStyle = game.nitro > 0 ? '#8ef6ff' : '#d0c6f5';
   ctx.fillText(`x${game.mult.toFixed(2)}${game.nitro > 0 ? '  NITRO x2' : ''}`, 20, 62);
 
   // timer bar
@@ -423,7 +425,7 @@ function drawHud(w, h) {
   ctx.fillStyle = game.time < 8 ? '#ff4d6d' : '#49c97a';
   ctx.fillRect(20, 76, barW * (game.time / RUN_SECONDS), 8);
 
-  ctx.fillStyle = '#6f7889';
+  ctx.fillStyle = '#e4dcff';
   ctx.font = '600 12px ui-monospace, monospace';
   ctx.fillText(`${game.time.toFixed(1)}s`, 24 + barW, 85);
 
@@ -437,7 +439,7 @@ function drawHud(w, h) {
   ctx.fillStyle = '#ffd166';
   ctx.font = '700 18px ui-sans-serif, system-ui, sans-serif';
   ctx.fillText(fmtMoney(est), w - 60, 40);
-  ctx.fillStyle = '#6f7889';
+  ctx.fillStyle = '#e4dcff';
   ctx.font = '600 11px ui-monospace, monospace';
   ctx.fillText('BANKING', w - 60, 56);
 }
@@ -448,10 +450,10 @@ function drawOverlay(w, h) {
   ctx.textAlign = 'center';
 
   if (game.phase === 'idle') {
-    ctx.fillStyle = '#e8ecf5';
+    ctx.fillStyle = '#ffffff';
     ctx.font = '800 30px ui-sans-serif, system-ui, sans-serif';
     ctx.fillText('WHEELIE MODE', w / 2, h / 2 - 26);
-    ctx.fillStyle = '#9aa3b5';
+    ctx.fillStyle = '#d0c6f5';
     ctx.font = '500 15px ui-sans-serif, system-ui, sans-serif';
     ctx.fillText('Hold anywhere (or SPACE) to feed it throttle.', w / 2, h / 2 + 4);
     ctx.fillText('Stay in the green band. Past vertical, you are on the floor.', w / 2, h / 2 + 28);
@@ -463,13 +465,13 @@ function drawOverlay(w, h) {
     ctx.fillStyle = crashed ? '#ff4d6d' : '#49c97a';
     ctx.font = '800 30px ui-sans-serif, system-ui, sans-serif';
     ctx.fillText(crashed ? 'LOOPED IT' : 'CLEAN RUN', w / 2, h / 2 - 30);
-    ctx.fillStyle = '#e8ecf5';
+    ctx.fillStyle = '#ffffff';
     ctx.font = '700 22px ui-sans-serif, system-ui, sans-serif';
     ctx.fillText(`${fmtNum(Math.floor(game.score), { int: true })} pts`, w / 2, h / 2 + 2);
     ctx.fillStyle = '#ffd166';
     ctx.font = '800 26px ui-sans-serif, system-ui, sans-serif';
     ctx.fillText(`+${fmtMoney(game.payout)}`, w / 2, h / 2 + 36);
-    ctx.fillStyle = '#9aa3b5';
+    ctx.fillStyle = '#d0c6f5';
     ctx.font = '500 13px ui-sans-serif, system-ui, sans-serif';
     ctx.fillText(crashed ? 'Crash payout is cut to 60%.' : 'Full payout - you held it to the bell.', w / 2, h / 2 + 62);
   }
@@ -482,17 +484,33 @@ export function draw() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   // backdrop
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, '#151a24');
-  grad.addColorStop(1, '#0b0e14');
+  const grad = ctx.createLinearGradient(0, 0, 0, h * BELT_Y);
+  grad.addColorStop(0, '#2b1d6b');
+  grad.addColorStop(0.55, '#8a3fc4');
+  grad.addColorStop(1, '#ff8a6b');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
 
-  // garage clutter
-  ctx.fillStyle = 'rgba(255,255,255,.035)';
-  for (let i = 0; i < 6; i += 1) {
+  // the sun going down behind the treadmill
+  const sunGrad = ctx.createLinearGradient(0, h * 0.2, 0, h * BELT_Y);
+  sunGrad.addColorStop(0, '#fff3a3');
+  sunGrad.addColorStop(1, '#ff6fb5');
+  ctx.fillStyle = sunGrad;
+  ctx.beginPath();
+  ctx.arc(w * 0.72, h * BELT_Y, Math.min(w, h) * 0.26, Math.PI, 0);
+  ctx.fill();
+
+  // city scrolling past at parallax speed
+  for (let i = 0; i < 9; i += 1) {
     const x = ((i * 137 + game.belt * 0.12) % (w + 160)) - 80;
-    ctx.fillRect(x, h * 0.5, 60, h * 0.32);
+    const tall = 0.18 + ((i * 53) % 7) * 0.035;
+    ctx.fillStyle = BUILDING_COLORS[i % BUILDING_COLORS.length];
+    ctx.fillRect(x, h * (BELT_Y - tall), 60, h * tall);
+    ctx.fillStyle = 'rgba(255,226,122,.7)';
+    for (let wy = h * (BELT_Y - tall) + 8; wy < h * BELT_Y - 10; wy += 16) {
+      if ((i + Math.round(wy)) % 3) ctx.fillRect(x + 10, wy, 6, 7);
+      if ((i + Math.round(wy)) % 2) ctx.fillRect(x + 36, wy, 6, 7);
+    }
   }
 
   drawBelt(w, h);

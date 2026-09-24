@@ -16,7 +16,7 @@ const EFFECT_TEXT = {
   sellMult: (v) => `${fmtMult(v)} sale price`,
   luck: (v) => `+${fmtPct(v, { sign: false })} crate luck`,
   crateDiscount: (v) => `-${fmtPct(v, { sign: false })} crate cost`,
-  autoMult: (v) => `${fmtMult(v)} automation speed`,
+  autoMult: (v) => `${fmtMult(v)} facility output`,
   wheelieMult: (v) => `${fmtMult(v)} wheelie payout`,
   wheelieZone: (v) => `+${v} degree balance window`,
   wheelieSave: (v) => `${v} free crash per run`,
@@ -36,10 +36,14 @@ function inReach(up) {
   return up.cost <= Math.max(200, state.lifetime * 3, state.money * 4);
 }
 
+const GROUP_COLOR = {
+  click: '#ffd23f', sell: '#3ee08f', crate: '#ff9f1c', wheelie: '#ff5fb8', auto: '#4cc9f0',
+};
+
 function card(up) {
   const afford = state.money >= up.cost;
   return `
-  <article class="card upgrade-card${afford ? ' affordable' : ''}">
+  <article class="card upgrade-card${afford ? ' affordable' : ''}" style="--c:${GROUP_COLOR[up.group] || '#b86bff'}">
     <header class="card-head">
       <span class="card-icon">${icon('upgrade')}</span>
       <div><h3>${esc(up.name)}</h3><p class="card-sub">${effectLine(up)}</p></div>

@@ -174,7 +174,7 @@ function binSection() {
   return `<section class="parts-bin">
       <div class="panel-head compact">
         <h3>Parts Bin</h3>
-        <p class="muted">Salvage melts ${salvageRatio()} parts into one from the tier above. It is a loss until you hire a Yard Foreman.</p>
+        <p class="muted">Salvage melts ${salvageRatio()} parts into one from the tier above. It loses value, but it clears dead stock.</p>
       </div>
       ${rows || '<p class="empty">The bin is empty. Go open a crate.</p>'}
     </section>`;

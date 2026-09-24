@@ -50,7 +50,7 @@ export default {
     <div class="panel-head">
       <div>
         <h2>Facilities</h2>
-        <p class="muted">Bike farms make parts out of thin air and electricity. They are worthless without Wrenches to build with them.</p>
+        <p class="muted">Facilities print parts out of thin air and electricity, even while you are away. Turn the pile into bikes at the Workbench.</p>
       </div>
       <div class="stat-pill">${fmtNum(farmOutput())} parts/sec</div>
     </div>

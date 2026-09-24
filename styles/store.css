@@ -78,7 +78,7 @@
   padding: 9px 11px;
   border-radius: 9px;
   border: 1px solid var(--line);
-  background: #0f1420;
+  background: #1a1242;
   color: var(--text);
   font: 600 13px var(--mono);
 }
@@ -145,7 +145,7 @@
 
 /* The dark surround is a box-shadow rather than a real overlay, so the page
    underneath stays clickable and the tour never blocks what it is explaining. */
-.tut-hole.is-empty { border: 0; animation: none; box-shadow: 0 0 0 9999px rgba(6, 8, 13, .72); }
+.tut-hole.is-empty { border: 0; animation: none; box-shadow: 0 0 0 9999px rgba(16, 6, 44, .72); }
 
 .tut-hole {
   position: fixed;
@@ -153,7 +153,7 @@
   border-radius: 14px;
   pointer-events: none;
   border: 2px solid var(--gold);
-  box-shadow: 0 0 0 9999px rgba(6, 8, 13, .72), 0 0 30px rgba(255, 209, 102, .55) inset;
+  box-shadow: 0 0 0 9999px rgba(16, 6, 44, .72), 0 0 30px rgba(255, 209, 102, .55) inset;
   transition: left .28s cubic-bezier(.2, .8, .3, 1), top .28s cubic-bezier(.2, .8, .3, 1),
               width .28s cubic-bezier(.2, .8, .3, 1), height .28s cubic-bezier(.2, .8, .3, 1);
   animation: tut-pulse 2s ease-in-out infinite;
@@ -171,7 +171,7 @@
   padding: 16px 18px 18px;
   border-radius: var(--radius);
   border: 1px solid rgba(255, 209, 102, .5);
-  background: linear-gradient(180deg, #1a2130, #11151f);
+  background: linear-gradient(180deg, #2c2070, #1b1248);
   box-shadow: 0 18px 50px rgba(0, 0, 0, .6);
   pointer-events: auto;
   transition: left .28s cubic-bezier(.2, .8, .3, 1), top .28s cubic-bezier(.2, .8, .3, 1);

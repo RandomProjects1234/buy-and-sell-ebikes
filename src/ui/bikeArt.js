@@ -2,18 +2,18 @@
 // BIKE ART
 // ---------------------------------------------------------------------------
 // Every build in the game is drawn from the same two SVG silhouettes, recoloured
-// and re-dressed by tier: scrap builds are dull grey with a visible weld, and by
+// and re-dressed by tier: scrap builds are rusty copper with a visible weld, and by
 // the nuclear tier there is a containment core pulsing between the cranks.
 
 import { TIERS } from '../data/parts.js';
 
 const PALETTES = [
-  { body: '#6b7280', accent: '#9aa3b0', rim: '#4b5563', tyre: '#1b1f27' },
-  { body: '#2f9e5a', accent: '#7ff0a8', rim: '#1f6b3e', tyre: '#191d24' },
-  { body: '#2b7fd4', accent: '#8dd2ff', rim: '#1d5a99', tyre: '#171b22' },
-  { body: '#8a4fe0', accent: '#d7b2ff', rim: '#5f34a0', tyre: '#161a20' },
-  { body: '#e08b1a', accent: '#ffd98a', rim: '#a3630f', tyre: '#14171d' },
-  { body: '#e03050', accent: '#ff9fb2', rim: '#8f1c33', tyre: '#12151a' },
+  { body: '#d0743f', accent: '#ffd0a0', rim: '#8a4524', tyre: '#1c1230' },
+  { body: '#27c06a', accent: '#9dffc4', rim: '#177a44', tyre: '#1a1230' },
+  { body: '#2f8cf0', accent: '#a5e4ff', rim: '#1d5fb0', tyre: '#18112e' },
+  { body: '#9a55f5', accent: '#e4c4ff', rim: '#6536b8', tyre: '#170f2c' },
+  { body: '#ff9a1f', accent: '#ffe7a0', rim: '#b8680f', tyre: '#160e28' },
+  { body: '#ff3b62', accent: '#ffb3c3', rim: '#a01c3a', tyre: '#150c24' },
 ];
 
 function palette(tier) { return PALETTES[Math.min(PALETTES.length - 1, Math.max(0, tier | 0))]; }

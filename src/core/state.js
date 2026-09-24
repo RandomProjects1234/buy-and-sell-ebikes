@@ -71,7 +71,7 @@ export function defaultState() {
       gifts: 0,
     },
 
-    settings: { muted: false, reduceMotion: false, volume: 0.9, buyAmount: 1 },
+    settings: { muted: false, music: true, reduceMotion: false, volume: 0.9, buyAmount: 1 },
     tutorial: { done: false, step: 0 },
     net: { name: '', lastRoom: '' },
 

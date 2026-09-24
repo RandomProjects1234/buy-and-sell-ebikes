@@ -10,9 +10,10 @@ import { clickValue, incomePerSec, showroomBonus, addMoney } from '../systems/ec
 import { registerActions, initActions, esc, el, isPointerDown, isEditing, eventPoint } from './dom.js';
 import { fmtMoney, fmtNum, fmtMult, fmtRate, fmtTime } from '../core/format.js';
 import { bikeSVG } from './bikeArt.js';
+import { sceneSVG } from './scene.js';
 import { icon } from './icons.js';
 import { floatText, burst, toast, bigWin, pop, initFx, updateShake } from './fx.js';
-import { play, unlockAudio, setMuted } from '../core/audio.js';
+import { play, unlockAudio, setMuted, setMusic, musicOn } from '../core/audio.js';
 import { on, EVENTS } from '../core/events.js';
 import { save, exportSave, importSave, wipeSave } from '../core/save.js';
 import {
@@ -79,6 +80,7 @@ function shellHTML() {
     </button>
     <div class="hud-pills" id="hud-pills"></div>
     <div class="topbar-buttons">
+      <button class="icon-btn icon-btn-music" data-act="shell:music" id="music-btn" title="Music">${icon('music')}</button>
       <button class="icon-btn" data-act="shell:mute" id="mute-btn" title="Mute">${icon('sound')}</button>
       <button class="icon-btn" data-act="shell:settings" title="Settings">${icon('gear')}</button>
     </div>
@@ -191,6 +193,7 @@ function renderPanel() {
   const panel = PANELS.find((p) => p.id === activePanel);
   if (!panel) return;
   panelDirty = false;
+  if (refs.panel.dataset.panel !== panel.id) refs.panel.dataset.panel = panel.id;
   if (panel.holdRender && panel.holdRender()) return;
 
   // Only swap the DOM when the markup actually changed. Without this the
@@ -239,7 +242,7 @@ function renderStage() {
   const bike = state.showroom;
   const key = showroomKey();
   if (key !== lastShowroomKey) {
-    refs.stageArt.innerHTML = bikeSVG(bike);
+    refs.stageArt.innerHTML = sceneSVG(bike ? bike.tier : 0) + bikeSVG(bike);
     lastShowroomKey = key;
   }
   const cv = clickValue();
@@ -302,6 +305,7 @@ function settingsModal() {
     <h2>Settings</h2>
     <div class="settings-list">
       <button class="btn" data-act="shell:mute">${state.settings.muted ? 'Unmute' : 'Mute'} sound</button>
+      <button class="btn" data-act="shell:music">Music ${musicOn() ? 'off' : 'on'}</button>
       <button class="btn" data-act="shell:motion">${state.settings.reduceMotion ? 'Enable' : 'Reduce'} motion</button>
       <button class="btn" data-act="shell:tour">Replay the tour</button>
       <button class="btn" data-act="shell:save">Save now</button>
@@ -311,6 +315,8 @@ function settingsModal() {
     </div>
     <p class="muted small">Autosaves every 15 seconds and whenever you close the tab. Add
       <code>?debug</code> to the URL (or press Ctrl+Shift+D) for the cheat panel.</p>
+    <p class="muted small credit">Music: "Fluffing a Duck" by Kevin MacLeod (incompetech.com),
+      licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</p>
     <div class="modal-actions"><button class="btn btn-primary" data-act="shell:closemodal">Done</button></div>`);
 }
 
@@ -366,6 +372,13 @@ const shellActions = {
     setMuted(!state.settings.muted);
     refs.muteBtn.innerHTML = icon(state.settings.muted ? 'mute' : 'sound');
     if (!state.settings.muted) play('drop');
+    if (refs.modal.classList.contains('open')) settingsModal();
+  },
+
+  'shell:music': () => {
+    unlockAudio();
+    setMusic(!musicOn());
+    syncMusicBtn();
     if (refs.modal.classList.contains('open')) settingsModal();
   },
 
@@ -444,6 +457,11 @@ const shellActions = {
   },
 };
 
+function syncMusicBtn() {
+  refs.musicBtn.classList.toggle('is-off', !musicOn());
+  refs.musicBtn.title = musicOn() ? 'Music on' : 'Music off';
+}
+
 // --- boot -------------------------------------------------------------------
 
 export function initUI(root) {
@@ -461,6 +479,7 @@ export function initUI(root) {
     quest: el('quest'),
     modal: el('modal-root'),
     muteBtn: el('mute-btn'),
+    musicBtn: el('music-btn'),
   };
 
   initFx();
@@ -472,6 +491,17 @@ export function initUI(root) {
   initWheelHandlers();
 
   refs.muteBtn.innerHTML = icon(state.settings.muted ? 'mute' : 'sound');
+  syncMusicBtn();
+
+  // Any first touch or key unlocks audio and starts the music - not just a
+  // click on the bike, which a brand new player reaches only after the tour.
+  const firstGesture = () => {
+    unlockAudio();
+    window.removeEventListener('pointerdown', firstGesture, true);
+    window.removeEventListener('keydown', firstGesture, true);
+  };
+  window.addEventListener('pointerdown', firstGesture, true);
+  window.addEventListener('keydown', firstGesture, true);
 
   on(EVENTS.TOAST, ({ text, kind }) => toast(text, kind));
   on(EVENTS.BIG_WIN, (payload) => { bigWin(payload); markTabsDirty(); markDirty(); });
@@ -496,6 +526,7 @@ let sinceRefresh = 0;
 /** Called every frame (or every worker tick when the tab is hidden). */
 export function renderFrame(dt, now) {
   updateShake(now);
+  document.documentElement.classList.toggle('reduce-motion', !!state.settings.reduceMotion);
   renderHud();
   renderStage();
   renderQuest();

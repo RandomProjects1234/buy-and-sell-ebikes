@@ -76,9 +76,9 @@ export const UPGRADES = [
 
   // --- automation -----------------------------------------------------------
   { id: 'shift_leader', group: 'auto', name: 'Shift Leader', cost: 3.3e6, effect: { autoMult: 1.25 },
-    desc: 'Somebody has to tell them which pile is which.' },
+    desc: 'Somebody has to tell the facilities which pile is which.' },
   { id: 'overtime', group: 'auto', name: 'Overtime Pay', cost: 4.95e8, effect: { autoMult: 1.5 },
-    desc: 'Morale is a multiplier and money is morale.' },
+    desc: 'The machines do not care, but the people oiling them do.' },
   { id: 'robot_arms', group: 'auto', name: 'Robot Arms', cost: 1.38e11, effect: { autoMult: 2 },
     desc: 'Six axes, zero complaints, one very specific safety interlock.' },
   { id: 'night_crew', group: 'auto', name: 'Night Crew', cost: 2.2e7, effect: { offlineHours: 6 },

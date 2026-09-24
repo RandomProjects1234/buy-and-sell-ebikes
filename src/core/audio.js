@@ -11,6 +11,10 @@
 //
 // Files load on the first user gesture, because that is when a browser will let
 // an AudioContext exist at all.
+//
+// The music bed is "Fluffing a Duck" by Kevin MacLeod (incompetech.com),
+// licensed under Creative Commons: By Attribution 4.0. It is the one file in
+// audio/ we did not make ourselves, and the credit sits in Settings too.
 
 import { state } from './state.js';
 
@@ -51,12 +55,18 @@ export const CUES = {
   tickUp:   { type: 'tone',  freq: 1200, to: 1400, dur: 0.03, gain: 0.03, wave: 'sine' },
 };
 
+const MUSIC_FILE = 'music.mp3';
+const MUSIC_LEVEL = 0.32;  // sits under the effects: a sale should still ring out
+
 let ctx = null;
 let volume = 1;
 const samples = {};        // name -> AudioBuffer
 const samplePaths = {};    // name -> url (loaded lazily)
 
-export function setVolume(v) { volume = Math.max(0, Math.min(1, v)); }
+export function setVolume(v) {
+  volume = Math.max(0, Math.min(1, v));
+  applyMusicLevel();
+}
 /** How many real sound files decoded, out of how many we ship. */
 export function sampleStatus() {
   return { loaded: Object.keys(samples).length, total: Object.keys(SAMPLE_FILES).length };
@@ -81,6 +91,7 @@ export function unlockAudio() {
   if (!samplesRequested) {
     samplesRequested = true;
     loadPackagedSamples();
+    loadMusic();
   }
 }
 
@@ -170,4 +181,72 @@ export function play(name, { rate = 1, gain = 1 } = {}) {
 export function setMuted(muted) {
   state.settings.muted = !!muted;
   if (!muted) context();
+  applyMusicLevel();
+}
+
+// --- music ------------------------------------------------------------------
+// Decoded once and looped from an AudioBufferSourceNode rather than an <audio>
+// tag: a buffer loop is sample-accurate, so there is no gap at the seam, and it
+// shares the context the effects already unlocked.
+
+let musicBuffer = null;
+let musicSource = null;
+let musicGain = null;
+let musicLoading = false;
+
+function musicWanted() {
+  return state.settings.music !== false && !state.settings.muted;
+}
+
+function loadMusic() {
+  const ac = context();
+  if (!ac || musicLoading || musicBuffer) return;
+  musicLoading = true;
+  fetch(sampleUrl(MUSIC_FILE))
+    .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(r.status))))
+    .then((buf) => ac.decodeAudioData(buf))
+    .then((decoded) => {
+      musicBuffer = decoded;
+      applyMusicLevel();
+    })
+    .catch(() => { /* no music is fine - the game is still a game */ })
+    .finally(() => { musicLoading = false; });
+}
+
+function startMusicSource(ac) {
+  if (musicSource || !musicBuffer) return;
+  musicGain = ac.createGain();
+  musicGain.gain.value = 0.0001;
+  musicGain.connect(ac.destination);
+  musicSource = ac.createBufferSource();
+  musicSource.buffer = musicBuffer;
+  musicSource.loop = true;
+  musicSource.connect(musicGain);
+  musicSource.start();
+}
+
+/** Fade the music to wherever the settings say it should be. */
+function applyMusicLevel() {
+  const ac = ctx;
+  if (!ac || !musicBuffer) return;
+  const target = musicWanted() ? MUSIC_LEVEL * volume : 0;
+  if (target > 0) startMusicSource(ac);
+  if (!musicGain) return;
+  const t = ac.currentTime;
+  musicGain.gain.cancelScheduledValues(t);
+  musicGain.gain.setValueAtTime(Math.max(0.0001, musicGain.gain.value), t);
+  musicGain.gain.exponentialRampToValueAtTime(Math.max(0.0001, target), t + (target > 0 ? 0.8 : 0.25));
+}
+
+export function musicOn() { return state.settings.music !== false; }
+
+/** For the debug panel: is the track decoded, running, and how loud right now. */
+export function musicStatus() {
+  return { loaded: !!musicBuffer, playing: !!musicSource, level: musicGain ? musicGain.gain.value : 0 };
+}
+
+export function setMusic(on) {
+  state.settings.music = !!on;
+  if (on) { context(); loadMusic(); }
+  applyMusicLevel();
 }

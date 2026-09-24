@@ -7,7 +7,7 @@
 // (`motor_t3_b`) so renaming a part never breaks an existing save.
 
 export const TIERS = [
-  { id: 0, key: 'scrap',       name: 'Scrap',       color: '#8b94a3', glow: 'rgba(139,148,163,.5)', value: 9 },
+  { id: 0, key: 'scrap',       name: 'Scrap',       color: '#e0955f', glow: 'rgba(224,149,95,.5)',  value: 9 },
   { id: 1, key: 'standard',    name: 'Standard',    color: '#49c97a', glow: 'rgba(73,201,122,.55)', value: 110 },
   { id: 2, key: 'performance', name: 'Performance', color: '#3d9dff', glow: 'rgba(61,157,255,.6)',  value: 1650 },
   { id: 3, key: 'exotic',      name: 'Exotic',      color: '#b06bff', glow: 'rgba(176,107,255,.65)', value: 34000 },

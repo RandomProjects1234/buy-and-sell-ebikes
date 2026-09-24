@@ -12,7 +12,7 @@ export const CRATES = [
     tier: 0,
     cost: 24,
     drops: 2,
-    color: '#8b94a3',
+    color: '#e0955f',
     table: [[0, 92], [1, 8]],
     unlock: { lifetime: 0 },
     desc: 'A milk crate of parts from a man called Big Dave. No refunds, no receipts, no Dave.',
