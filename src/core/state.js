@@ -63,7 +63,7 @@ export function defaultState() {
     unlocked: Object.fromEntries(STARTER_BLUEPRINTS.map((id) => [id, true])),
     secrets: {},        // secretId -> true (hidden content only)
 
-    wheelie: { best: 0, runs: 0, earned: 0, unlocked: false },
+    wheelie: { best: 0, runs: 0, earned: 0, unlocked: false, sRuns: 0 },
 
     stats: {
       cratesOpened: 0, partsGained: 0, builds: 0, sales: 0,
@@ -71,7 +71,7 @@ export function defaultState() {
       gifts: 0,
     },
 
-    settings: { muted: false, music: true, reduceMotion: false, volume: 0.9, buyAmount: 1 },
+    settings: { muted: false, music: true, musicVolume: 0.75, reduceMotion: false, volume: 0.9, buyAmount: 1 },
     tutorial: { done: false, step: 0 },
     net: { name: '', lastRoom: '' },
 

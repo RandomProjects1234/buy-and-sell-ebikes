@@ -40,6 +40,14 @@ export function initActions() {
     fn(target.dataset, ev, target);
   });
 
+  // Sliders use data-input, so they act while they are being dragged.
+  document.addEventListener('input', (ev) => {
+    const target = ev.target.closest('[data-input]');
+    if (!target) return;
+    const fn = handlers.get(target.dataset.input);
+    if (fn) fn(target.dataset, ev, target);
+  });
+
   // Selects and checkboxes use data-change and go through the same table.
   document.addEventListener('change', (ev) => {
     const target = ev.target.closest('[data-change]');
@@ -52,6 +60,9 @@ export function initActions() {
 /** True when the player is mid-interaction with a form control in a panel. */
 export function isEditing() {
   const a = document.activeElement;
+  // A slider keeps focus after you let go of it; that is not "typing", and
+  // treating it as such would freeze every panel until something else is clicked.
+  if (a && a.tagName === 'INPUT' && a.type === 'range') return false;
   return !!a && (a.tagName === 'SELECT' || a.tagName === 'INPUT' || a.tagName === 'TEXTAREA');
 }
 

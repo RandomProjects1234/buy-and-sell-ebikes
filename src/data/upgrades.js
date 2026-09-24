@@ -11,6 +11,8 @@
 //   wheelieMult   wheelie payout multiplier
 //   wheelieZone   widens the wheelie sweet zone (degrees each side)
 //   wheelieSave   free crashes per run
+//   wheelieLaunch wheelie runs start at this much extra multiplier
+//   wheelieNitro  extra seconds per nitro canister
 //   demandFloor   raises the minimum demand a model can sink to
 //   offlineHours  extra offline-earnings cap
 //   showroomMult  multiplies the showroom bike's click bonus
@@ -67,12 +69,16 @@ export const UPGRADES = [
   // --- wheelie --------------------------------------------------------------
   { id: 'grippy_pedals', group: 'wheelie', name: 'Grippy Pedals', cost: 6600, effect: { wheelieZone: 3 },
     desc: 'Shins beware. The balance window gets noticeably kinder.' },
+  { id: 'launch_control', group: 'wheelie', name: 'Launch Control', cost: 120000, effect: { wheelieLaunch: 1 },
+    desc: 'Every run starts at x2. The first ten seconds stop being a warm-up.' },
   { id: 'wheelie_bar', group: 'wheelie', name: 'Wheelie Bar', cost: 495000, effect: { wheelieSave: 1 },
     desc: 'One free catastrophe per run. Use it wisely, or immediately.' },
-  { id: 'sticky_treadmill', group: 'wheelie', name: 'Sticky Treadmill', cost: 2.75e7, effect: { wheelieMult: 1.6, wheelieZone: 2 },
+  { id: 'nitro_tank', group: 'wheelie', name: 'Bigger Nitro Tank', cost: 8.8e6, effect: { wheelieNitro: 3 },
+    desc: 'Nitro lasts eight seconds instead of five. Hold on to something.' },
+  { id: 'sticky_treadmill', group: 'wheelie', name: 'Sticky Treadmill', cost: 2.75e7, effect: { wheelieMult: 1.4, wheelieZone: 2 },
     desc: 'Grippier belt, longer balance, louder crowd.' },
-  { id: 'crowd_barrier', group: 'wheelie', name: 'Crowd Barrier', cost: 1.38e9, effect: { wheelieMult: 2.2 },
-    desc: 'Now that people can safely watch, people pay to watch.' },
+  { id: 'crowd_barrier', group: 'wheelie', name: 'Crowd Barrier', cost: 1.38e9, effect: { wheelieMult: 1.7 },
+    desc: 'Now that people can safely watch, people pay to watch. The stands fill up.' },
 
   // --- automation -----------------------------------------------------------
   { id: 'shift_leader', group: 'auto', name: 'Shift Leader', cost: 3.3e6, effect: { autoMult: 1.25 },

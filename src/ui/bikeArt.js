@@ -18,6 +18,9 @@ const PALETTES = [
 
 function palette(tier) { return PALETTES[Math.min(PALETTES.length - 1, Math.max(0, tier | 0))]; }
 
+/** The same tier colours, for things drawn outside SVG (the wheelie canvas). */
+export function bikePalette(tier) { return palette(tier); }
+
 function spokes(cx, cy, r, count, color) {
   let out = '';
   for (let i = 0; i < count; i += 1) {

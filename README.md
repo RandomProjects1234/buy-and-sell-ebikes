@@ -55,7 +55,7 @@ it any time from the gear icon.
 | **Crates** | Spend money on crates. Better crates roll better part tiers: Scrap -> Standard -> Performance -> Exotic -> Hypertech -> Nuclear. Drops are nudged toward the slots you are short of. |
 | **Workbench** | Pick a blueprint, fit one part per slot, build it. Parts better than the recipe demands raise **quality**, which raises the sale price. Surplus junk salvages into the tier above at 12:1. |
 | **Garage** | Sell finished builds, or put one in the showroom window. |
-| **Upgrades** | One-off permanent buys: click value, sale price, crate luck, automation speed, wheelie payout. |
+| **Upgrades** | One-off permanent buys: click value, sale price, crate luck, facility output, wheelie payout. |
 | **Facilities** | Bike farms that print parts of a fixed tier forever - the idle half of the game. |
 | **Wheelie** | A 40 second skill minigame on the shop treadmill (see below). |
 | **Index** | The catalogue: every build, part and crate in the game, with what each recipe needs and what you are holding. Things you have not met yet stay redacted. |
@@ -74,18 +74,34 @@ the fun.
 
 ### Wheelie mode
 
-Your bike is on a treadmill. **Hold** anywhere on the canvas (or hold `Space` /
-`ArrowUp`) to feed it throttle; let go and the nose drops.
+Your bike is on a treadmill in front of a cheering crowd. **Hold** anywhere on
+the canvas (or `Space` / `ArrowUp` / `W`) to open the throttle; let go and the
+engine brake drops the nose. `Space`, `Enter` or a tap starts a run, after a
+3-2-1 countdown you can rev through.
 
-- Stay inside the green band on the balance meter and the multiplier climbs.
-- Let the front wheel drop and the multiplier bleeds away - no crash, no points.
-- Loop it past vertical and you are on the floor: the run ends and the payout is
-  cut to 60%.
-- Coins and **NITRO** gates fly past on the belt. Nitro doubles scoring for five
-  seconds.
+- A gauge arcs around the rear wheel. Keep the needle in the **green** and your
+  multiplier climbs (up to x10). The narrow **gold** band is the balance point:
+  double points, double climb, and uncomfortably close to vertical.
+- **Coins** come in trails at a fixed angle, so collecting them is steering.
+  **Gems** hang near vertical for the brave, **nitro** doubles scoring (and
+  throttle response) for five seconds, and a rare **spanner** is a free save.
+- **Bumps** kick the nose up and **potholes** drop it, both signposted a
+  second early. Ride one out for a SMOOTH bonus.
+- Scrape back from the red for a **close call** bonus. Slam the front wheel
+  down and you lose 40% of the multiplier. Loop it past vertical and the run
+  ends with 70% of the payout.
+- The belt speeds up, and the bike gets twitchier, as the run goes on.
 
-The payout scales off how much money you are making elsewhere, so a good run is
-worth riding at any point in the game rather than being a minute-one novelty.
+Runs are graded **S/A/B/C/D**. An S run pays about 300 test rides early on and
+about 110 seconds of income later (wheelie payouts do not count towards that
+income, so runs cannot inflate each other). Upgrades widen the green band, add
+a wheelie bar save, start runs at x2 (Launch Control), stretch nitro, and
+multiply the payout.
+
+The grade thresholds were tuned with bots that react 0.14 - 0.3s late
+(`__BSE.wheelie.simulate(seconds, snapshot => holdThrottle)`): one parked on the
+balance point averages about S, one playing safe in the green gets B, a laggy
+sloppy one gets B - D with the odd crash.
 
 ### Multiplayer
 
@@ -139,6 +155,9 @@ It is the one file in `audio/` we did not make (`audio/music.mp3`), so it is
 not covered by this repo's MIT licence. It starts on your first click or key
 press, loops gaplessly from a decoded WebAudio buffer, and has its own toggle
 (the note button in the top bar, or Settings) separate from the sound effects.
+Music and effects each have a volume slider in Settings, and the music one is
+also in the top bar on wider screens. Wheelie mode adds a synthesised engine
+drone whose pitch follows the throttle.
 
 ## Look
 

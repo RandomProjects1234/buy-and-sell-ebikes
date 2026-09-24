@@ -533,9 +533,12 @@
 .wheelie-canvas {
   display: block;
   width: 100%;
-  height: clamp(240px, 42vh, 420px);
+  /* phones: tied to width too, so a narrow canvas is not mostly sky */
+  height: clamp(260px, min(52vh, 80vw), 480px);
   touch-action: none;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .wheelie-bar {
   display: flex;

@@ -13,7 +13,10 @@ import { bikeSVG } from './bikeArt.js';
 import { sceneSVG } from './scene.js';
 import { icon } from './icons.js';
 import { floatText, burst, toast, bigWin, pop, initFx, updateShake } from './fx.js';
-import { play, unlockAudio, setMuted, setMusic, musicOn } from '../core/audio.js';
+import {
+  play, unlockAudio, setMuted, setMusic, musicOn,
+  getMusicVolume, setMusicVolume, getVolume, setVolume,
+} from '../core/audio.js';
 import { on, EVENTS } from '../core/events.js';
 import { save, exportSave, importSave, wipeSave } from '../core/save.js';
 import {
@@ -80,7 +83,11 @@ function shellHTML() {
     </button>
     <div class="hud-pills" id="hud-pills"></div>
     <div class="topbar-buttons">
-      <button class="icon-btn icon-btn-music" data-act="shell:music" id="music-btn" title="Music">${icon('music')}</button>
+      <div class="music-ctl">
+        <button class="icon-btn icon-btn-music" data-act="shell:music" id="music-btn" title="Music">${icon('music')}</button>
+        <input type="range" class="vol-slider" id="music-vol" min="0" max="100" step="1"
+          value="${Math.round(getMusicVolume() * 100)}" data-input="shell:musicvol" aria-label="Music volume" title="Music volume">
+      </div>
       <button class="icon-btn" data-act="shell:mute" id="mute-btn" title="Mute">${icon('sound')}</button>
       <button class="icon-btn" data-act="shell:settings" title="Settings">${icon('gear')}</button>
     </div>
@@ -306,6 +313,18 @@ function settingsModal() {
     <div class="settings-list">
       <button class="btn" data-act="shell:mute">${state.settings.muted ? 'Unmute' : 'Mute'} sound</button>
       <button class="btn" data-act="shell:music">Music ${musicOn() ? 'off' : 'on'}</button>
+      <label class="vol-row">
+        <span>${icon('music')} Music</span>
+        <input type="range" class="vol-slider" min="0" max="100" step="1"
+          value="${Math.round(getMusicVolume() * 100)}" data-input="shell:musicvol" aria-label="Music volume">
+        <b id="vol-music-val">${Math.round(getMusicVolume() * 100)}%</b>
+      </label>
+      <label class="vol-row">
+        <span>${icon('sound')} Effects</span>
+        <input type="range" class="vol-slider" min="0" max="100" step="1"
+          value="${Math.round(getVolume() * 100)}" data-input="shell:sfxvol" aria-label="Sound effects volume">
+        <b id="vol-sfx-val">${Math.round(getVolume() * 100)}%</b>
+      </label>
       <button class="btn" data-act="shell:motion">${state.settings.reduceMotion ? 'Enable' : 'Reduce'} motion</button>
       <button class="btn" data-act="shell:tour">Replay the tour</button>
       <button class="btn" data-act="shell:save">Save now</button>
@@ -318,6 +337,7 @@ function settingsModal() {
     <p class="muted small credit">Music: "Fluffing a Duck" by Kevin MacLeod (incompetech.com),
       licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</p>
     <div class="modal-actions"><button class="btn btn-primary" data-act="shell:closemodal">Done</button></div>`);
+  syncVolumeUI();
 }
 
 export function offlineModal(report) {
@@ -380,6 +400,24 @@ const shellActions = {
     setMusic(!musicOn());
     syncMusicBtn();
     if (refs.modal.classList.contains('open')) settingsModal();
+  },
+
+  'shell:musicvol': (ds, ev, target) => {
+    unlockAudio();
+    const v = Number(target.value) / 100;
+    // Dragging the slider up is an obvious "I want music" - switch it back on.
+    if (v > 0 && !musicOn()) setMusic(true);
+    setMusicVolume(v);
+    syncVolumeUI();
+  },
+
+  'shell:sfxvol': (ds, ev, target) => {
+    unlockAudio();
+    setVolume(Number(target.value) / 100);
+    syncVolumeUI();
+    // A throttled preview, so you can hear the level while dragging.
+    const now = performance.now();
+    if (now - lastSfxPreview > 140) { lastSfxPreview = now; play('coin'); }
   },
 
   'shell:motion': () => {
@@ -457,9 +495,32 @@ const shellActions = {
   },
 };
 
+let lastSfxPreview = 0;
+
 function syncMusicBtn() {
-  refs.musicBtn.classList.toggle('is-off', !musicOn());
+  refs.musicBtn.classList.toggle('is-off', !musicOn() || getMusicVolume() === 0);
   refs.musicBtn.title = musicOn() ? 'Music on' : 'Music off';
+}
+
+/** Keep every volume control on the page agreeing with the settings. */
+function syncVolumeUI() {
+  const music = Math.round(getMusicVolume() * 100);
+  const sfx = Math.round(getVolume() * 100);
+  for (const input of document.querySelectorAll('[data-input="shell:musicvol"]')) {
+    if (document.activeElement !== input) input.value = music;
+  }
+  for (const input of document.querySelectorAll('[data-input="shell:sfxvol"]')) {
+    if (document.activeElement !== input) input.value = sfx;
+  }
+  const mv = document.getElementById('vol-music-val');
+  const sv = document.getElementById('vol-sfx-val');
+  if (mv) mv.textContent = `${music}%`;
+  if (sv) sv.textContent = `${sfx}%`;
+  refs.musicVol.style.setProperty('--fill', `${music}%`);
+  for (const input of document.querySelectorAll('.vol-slider')) {
+    input.style.setProperty('--fill', `${input.value}%`);
+  }
+  syncMusicBtn();
 }
 
 // --- boot -------------------------------------------------------------------
@@ -480,6 +541,7 @@ export function initUI(root) {
     modal: el('modal-root'),
     muteBtn: el('mute-btn'),
     musicBtn: el('music-btn'),
+    musicVol: el('music-vol'),
   };
 
   initFx();
@@ -491,7 +553,7 @@ export function initUI(root) {
   initWheelHandlers();
 
   refs.muteBtn.innerHTML = icon(state.settings.muted ? 'mute' : 'sound');
-  syncMusicBtn();
+  syncVolumeUI();
 
   // Any first touch or key unlocks audio and starts the music - not just a
   // click on the bike, which a brand new player reaches only after the tour.
@@ -510,9 +572,9 @@ export function initUI(root) {
   on(EVENTS.CRAFTED, () => { markDirty(); markTabsDirty(); });
   on(EVENTS.SOLD, () => { markDirty(); markTabsDirty(); });
   on(EVENTS.NET, () => { if (activePanel === 'network') markDirty(); markTabsDirty(); });
-  on(EVENTS.WHEELIE_END, ({ payout }) => {
+  on(EVENTS.WHEELIE_END, ({ payout, grade, crashed }) => {
     markDirty();
-    toast(`Wheelie run banked ${fmtMoney(payout)}.`, 'good');
+    toast(`Wheelie grade ${grade}${crashed ? ' (crashed)' : ''} - banked ${fmtMoney(payout)}.`, crashed ? 'warn' : 'good');
   });
   renderTabs();
   renderPanel();

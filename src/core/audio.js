@@ -56,22 +56,32 @@ export const CUES = {
 };
 
 const MUSIC_FILE = 'music.mp3';
-const MUSIC_LEVEL = 0.32;  // sits under the effects: a sale should still ring out
+// Loudest the music gets with its slider at 100%. The slider is squared on the
+// way in (loudness is not linear), so the 75% default lands near 0.34 - under
+// the effects, so a sale still rings out over it.
+const MUSIC_MAX = 0.6;
 
 let ctx = null;
-let volume = 1;
 const samples = {};        // name -> AudioBuffer
 const samplePaths = {};    // name -> url (loaded lazily)
 
-export function setVolume(v) {
-  volume = Math.max(0, Math.min(1, v));
-  applyMusicLevel();
+const clamp01 = (v) => Math.max(0, Math.min(1, Number(v) || 0));
+
+/** Sound effects volume, 0..1. Persisted in settings.volume. */
+export function setVolume(v) { state.settings.volume = clamp01(v); }
+export function getVolume() { return state.settings.volume == null ? 1 : state.settings.volume; }
+
+/** Music volume, 0..1. Persisted in settings.musicVolume. */
+export function setMusicVolume(v) {
+  state.settings.musicVolume = clamp01(v);
+  if (state.settings.musicVolume > 0 && state.settings.music !== false) { context(); loadMusic(); }
+  applyMusicLevel(0.12);
 }
+export function getMusicVolume() { return state.settings.musicVolume == null ? 0.75 : state.settings.musicVolume; }
 /** How many real sound files decoded, out of how many we ship. */
 export function sampleStatus() {
   return { loaded: Object.keys(samples).length, total: Object.keys(SAMPLE_FILES).length };
 }
-export function getVolume() { return volume; }
 
 function context() {
   if (!ctx) {
@@ -129,7 +139,7 @@ export function play(name, { rate = 1, gain = 1 } = {}) {
     const g = ac.createGain();
     src.buffer = samples[name];
     src.playbackRate.value = rate;
-    g.gain.value = gain * (GAIN[name] || 0.7) * volume;
+    g.gain.value = gain * (GAIN[name] || 0.7) * getVolume();
     src.connect(g).connect(ac.destination);
     src.start();
     return;
@@ -139,7 +149,7 @@ export function play(name, { rate = 1, gain = 1 } = {}) {
   if (!cue) return;
   const t0 = ac.currentTime;
   const master = ac.createGain();
-  master.gain.value = (cue.gain || 0.08) * gain * volume;
+  master.gain.value = (cue.gain || 0.08) * gain * getVolume();
   master.connect(ac.destination);
 
   if (cue.type === 'noise') {
@@ -181,7 +191,67 @@ export function play(name, { rate = 1, gain = 1 } = {}) {
 export function setMuted(muted) {
   state.settings.muted = !!muted;
   if (!muted) context();
+  else engineStop();
   applyMusicLevel();
+}
+
+// --- engine -----------------------------------------------------------------
+// A continuous motor drone for wheelie mode: two detuned oscillators through a
+// low-pass filter. Pitch and brightness follow the throttle, so you can hear
+// the bike rev before you see the nose come up.
+
+let engine = null;
+
+export function engineStart() {
+  if (state.settings.muted || engine) return;
+  const ac = context();
+  if (!ac) return;
+  const t = ac.currentTime;
+  const out = ac.createGain();
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(0.05 * getVolume() + 0.0001, t + 0.3);
+  const filter = ac.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 500;
+  filter.Q.value = 4;
+  const a = ac.createOscillator();
+  const b = ac.createOscillator();
+  a.type = 'sawtooth';
+  b.type = 'square';
+  a.frequency.value = 52;
+  b.frequency.value = 52 * 1.007;
+  const bGain = ac.createGain();
+  bGain.gain.value = 0.35;
+  a.connect(filter);
+  b.connect(bGain).connect(filter);
+  filter.connect(out).connect(ac.destination);
+  a.start(t);
+  b.start(t);
+  engine = { out, filter, a, b };
+}
+
+/** rev: 0 idle .. 1 flat out. boost adds a nitro whine on top. */
+export function engineSet(rev, boost = false) {
+  if (!engine || !ctx) return;
+  const t = ctx.currentTime;
+  const r = clamp01(rev);
+  const f = 48 + r * 120 + (boost ? 40 : 0);
+  engine.a.frequency.setTargetAtTime(f, t, 0.06);
+  engine.b.frequency.setTargetAtTime(f * 1.007, t, 0.06);
+  engine.filter.frequency.setTargetAtTime(380 + r * 2200 + (boost ? 900 : 0), t, 0.05);
+  engine.out.gain.setTargetAtTime((0.03 + r * 0.045) * getVolume() + 0.0001, t, 0.08);
+}
+
+export function engineStop() {
+  if (!engine || !ctx) { engine = null; return; }
+  const { out, a, b } = engine;
+  const t = ctx.currentTime;
+  out.gain.cancelScheduledValues(t);
+  out.gain.setValueAtTime(Math.max(0.0001, out.gain.value), t);
+  out.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+  a.stop(t + 0.4);
+  b.stop(t + 0.4);
+  engine = null;
 }
 
 // --- music ------------------------------------------------------------------
@@ -195,7 +265,7 @@ let musicGain = null;
 let musicLoading = false;
 
 function musicWanted() {
-  return state.settings.music !== false && !state.settings.muted;
+  return state.settings.music !== false && !state.settings.muted && getMusicVolume() > 0;
 }
 
 function loadMusic() {
@@ -226,16 +296,18 @@ function startMusicSource(ac) {
 }
 
 /** Fade the music to wherever the settings say it should be. */
-function applyMusicLevel() {
+function applyMusicLevel(fade) {
   const ac = ctx;
   if (!ac || !musicBuffer) return;
-  const target = musicWanted() ? MUSIC_LEVEL * volume : 0;
+  const v = getMusicVolume();
+  const target = musicWanted() ? MUSIC_MAX * v * v : 0;
   if (target > 0) startMusicSource(ac);
   if (!musicGain) return;
   const t = ac.currentTime;
   musicGain.gain.cancelScheduledValues(t);
   musicGain.gain.setValueAtTime(Math.max(0.0001, musicGain.gain.value), t);
-  musicGain.gain.exponentialRampToValueAtTime(Math.max(0.0001, target), t + (target > 0 ? 0.8 : 0.25));
+  const time = fade != null ? fade : (target > 0 ? 0.8 : 0.25);
+  musicGain.gain.exponentialRampToValueAtTime(Math.max(0.0001, target), t + time);
 }
 
 export function musicOn() { return state.settings.music !== false; }

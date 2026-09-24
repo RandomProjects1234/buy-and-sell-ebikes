@@ -62,6 +62,10 @@ export function autoMult() {
 export function wheelieMult() { return prodEffect('wheelieMult'); }
 export function wheelieZoneBonus() { return sumEffect('wheelieZone'); }
 export function wheelieSaves() { return sumEffect('wheelieSave'); }
+/** Multiplier a wheelie run starts at (Launch Control). */
+export function wheelieLaunch() { return 1 + sumEffect('wheelieLaunch'); }
+/** Extra seconds each nitro canister lasts. */
+export function wheelieNitroBonus() { return sumEffect('wheelieNitro'); }
 
 export function offlineCapHours() {
   return 8 + sumEffect('offlineHours');
@@ -83,7 +87,9 @@ export function addMoney(amount, source = 'misc') {
   if (!isFinite(amount) || amount <= 0) return 0;
   state.money += amount;
   state.lifetime += amount;
-  incomeBucket += amount;
+  // Wheelie payouts are staked on this rate, so they must not feed back into
+  // it - one good run would otherwise inflate the stake of the next.
+  if (source !== 'wheelie' && source !== 'debug') incomeBucket += amount;
   if (source === 'auto') autoBucket += amount;
   if (source === 'click') state.stats.clickEarned += amount;
   emit(EVENTS.MONEY, { amount, source });
@@ -125,9 +131,14 @@ export function seedIncomeRate(value) {
 }
 
 /**
- * A single "how rich is this player right now" number. Used by the wheelie
- * minigame so its payout stays meaningful from the first minute to the last.
+ * What an S-grade wheelie run pays before wheelie upgrades - the "stake" the
+ * rig is played for. It follows how rich the player is right now so the rig
+ * stays worth a ride from the first minute to the last:
+ *  - early on, when clicking is the income, an S run is worth ~300 test
+ *    rides: better than clicking for the same 45 seconds, not a replacement.
+ *  - later, ~110 seconds of income for a ~45 second run: a real bonus for
+ *    playing well, but no longer the 20x-income money printer it used to be.
  */
-export function incomeScale() {
-  return Math.max(clickValue() * 8, incomeRate * 14, 40);
+export function wheelieSRunValue() {
+  return Math.max(clickValue() * 300, incomeRate * 110, 500);
 }

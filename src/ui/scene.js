@@ -23,7 +23,7 @@ const SKIES = [
   { sky: ['#2a0620', '#8a0f3c', '#ff3d5e', '#ffb199'], sun: ['#fff2f4', '#ff4d6d'], grid: '#ff5577' },
 ];
 
-function skyFor(tier) { return SKIES[Math.min(SKIES.length - 1, Math.max(0, tier | 0))]; }
+export function skyFor(tier) { return SKIES[Math.min(SKIES.length - 1, Math.max(0, tier | 0))]; }
 
 // Fixed layouts, so the city does not reshuffle every time the bike changes.
 const STARS = [

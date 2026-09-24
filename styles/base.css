@@ -229,7 +229,9 @@ p { margin: 0; }
 
 @media (max-width: 980px) {
   .app { padding: 8px 10px 26px; }
-  .layout { grid-template-columns: 1fr; }
+  /* minmax(0, ...) - a plain 1fr column grows to the tab strip's full width
+     once every tab is unlocked, and the page scrolls sideways on phones */
+  .layout { grid-template-columns: minmax(0, 1fr); }
   /* relative, not static: .stage-click is absolutely positioned inside it and
      would otherwise size itself against the whole page and swallow every tap */
   .stage { position: relative; top: auto; }
