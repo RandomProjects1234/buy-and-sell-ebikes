@@ -61,6 +61,8 @@ let lastShowroomKey = null;
 let lastPanelHTML = '';
 let spannerEl = null;
 let refs = {};
+let shownPanel = null;            // id of the panel currently in the DOM
+const scrollMemory = new Map();   // panel id -> Map(scroll key -> [top, left])
 
 export function markDirty() { panelDirty = true; }
 export function markTabsDirty() { tabsDirty = true; }
@@ -112,9 +114,73 @@ function shellHTML() {
   <div class="modal-root" id="modal-root"></div>`;
 }
 
+// --- scroll memory -----------------------------------------------------------
+// Panels are handed to the browser as one HTML string, so a swap replaces every
+// node underneath - including any list the player had scrolled, which would
+// silently snap back to the top. Snapshot the scroll offsets before the swap
+// and re-apply them to the matching nodes afterwards.
+
+function scrollKey(node, counts) {
+  const cls = (node.getAttribute && node.getAttribute('class')) || '';
+  const base = `${node.tagName}#${node.id}.${cls}`;
+  const n = counts.get(base) || 0;
+  counts.set(base, n + 1);
+  return `${base}~${n}`;
+}
+
+function captureScroll(root) {
+  const positions = new Map();
+  const counts = new Map();
+  for (const node of root.querySelectorAll('*')) {
+    const key = scrollKey(node, counts);
+    if (node.scrollTop || node.scrollLeft) positions.set(key, [node.scrollTop, node.scrollLeft]);
+  }
+  return positions;
+}
+
+function restoreScroll(root, positions) {
+  if (!positions || !positions.size) return;
+  const counts = new Map();
+  for (const node of root.querySelectorAll('*')) {
+    const pos = positions.get(scrollKey(node, counts));
+    if (pos) { node.scrollTop = pos[0]; node.scrollLeft = pos[1]; }
+  }
+}
+
+// --- wheel handling ----------------------------------------------------------
+// Two dead zones made the wheel feel broken:
+//  - the bike's click target is a transparent <button> stretched over the art,
+//    and a button can swallow wheel events instead of letting them reach the
+//    page - so scrolling with the cursor over the bike did nothing. Hand the
+//    wheel to the window ourselves (preventDefault first, so it never doubles).
+//  - the tab strip scrolls sideways but hides its scrollbar, so with enough
+//    tabs unlocked the last ones cannot be reached at all. A plain vertical
+//    wheel over it should move the strip.
+
+function initWheelHandlers() {
+  refs.stageClick.addEventListener('wheel', (ev) => {
+    const unit = ev.deltaMode === 1 ? 16 : (ev.deltaMode === 2 ? window.innerHeight : 1);
+    ev.preventDefault();
+    window.scrollBy(0, ev.deltaY * unit);
+  }, { passive: false });
+
+  refs.tabs.addEventListener('wheel', (ev) => {
+    if (refs.tabs.scrollWidth <= refs.tabs.clientWidth + 1) return;
+    const unit = ev.deltaMode === 1 ? 16 : (ev.deltaMode === 2 ? window.innerWidth : 1);
+    const dx = Math.abs(ev.deltaX) > Math.abs(ev.deltaY) ? ev.deltaX : ev.deltaY;
+    if (!dx) return;
+    const before = refs.tabs.scrollLeft;
+    refs.tabs.scrollLeft = before + dx * unit;
+    // Only swallow the event when the strip actually moved; at either end let
+    // the page scroll normally.
+    if (Math.abs(refs.tabs.scrollLeft - before) > 0.5) ev.preventDefault();
+  }, { passive: false });
+}
+
 function renderTabs() {
   const list = PANELS.filter((p) => p.visible());
   if (!list.some((p) => p.id === activePanel)) activePanel = list[0].id;
+  const keepLeft = refs.tabs.scrollLeft;
   refs.tabs.innerHTML = list.map((p) => {
     const badge = p.badge ? p.badge() : null;
     return `<button class="tab${p.id === activePanel ? ' is-active' : ''}" data-act="shell:tab" data-id="${p.id}">
@@ -123,6 +189,7 @@ function renderTabs() {
         ${badge ? `<span class="tab-badge">${esc(badge)}</span>` : ''}
       </button>`;
   }).join('');
+  if (keepLeft) refs.tabs.scrollLeft = keepLeft;
   tabsDirty = false;
 }
 
@@ -137,7 +204,14 @@ function renderPanel() {
   const html = panel.render();
   if (html === lastPanelHTML) return;
   lastPanelHTML = html;
+
+  // Remember where the player was before the swap, then put the new scrollable
+  // nodes back where the old ones were - otherwise the wheel scrolls a list and
+  // it snaps back to the top on the next refresh.
+  if (shownPanel) scrollMemory.set(shownPanel, captureScroll(refs.panel));
   refs.panel.innerHTML = html;
+  restoreScroll(refs.panel, scrollMemory.get(panel.id));
+  shownPanel = panel.id;
   if (panel.mount) panel.mount();
 }
 
@@ -351,16 +425,6 @@ const shellActions = {
   'shell:mute': () => {
     setMuted(!state.settings.muted);
     refs.muteBtn.innerHTML = icon(state.settings.muted ? 'mute' : 'sound');
-
-  // The bike's click target is a transparent <button> stretched over the art,
-  // and a button swallows wheel events instead of letting them reach the page -
-  // so scrolling with the cursor over the bike did nothing at all. Hand the
-  // wheel to the window ourselves.
-  refs.stageClick.addEventListener('wheel', (ev) => {
-    const unit = ev.deltaMode === 1 ? 16 : (ev.deltaMode === 2 ? window.innerHeight : 1);
-    window.scrollBy(0, ev.deltaY * unit);
-    ev.preventDefault();
-  }, { passive: false });
     if (!state.settings.muted) play('drop');
     if (refs.modal.classList.contains('open')) settingsModal();
   },
@@ -467,6 +531,7 @@ export function initUI(root) {
   registerActions(shellActions);
   registerActions(tutorialActions);
   for (const panel of PANELS) if (panel.actions) registerActions(panel.actions);
+  initWheelHandlers();
 
   refs.muteBtn.innerHTML = icon(state.settings.muted ? 'mute' : 'sound');
 
