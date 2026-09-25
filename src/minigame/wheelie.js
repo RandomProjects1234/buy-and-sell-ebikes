@@ -36,8 +36,8 @@ const SIM_STEP = 1 / 120;
 // Degrees of nose-up. 0 = both wheels down, 90 = straight up.
 const ZONE_LOW = 28;
 const ZONE_HIGH = 76;
-const GOLD_LOW = 58;
-const GOLD_HIGH = 70;
+const GOLD_LOW = 56;
+const GOLD_HIGH = 71;
 const DANGER = 86;
 const CRASH_ANGLE = 100;
 
@@ -49,8 +49,12 @@ const NITRO_PUSH = 1.3;
 const NITRO_SECONDS = 5;
 const MAX_MULT = 10;
 const SLAM_SPEED = -75;              // hitting the floor faster than this hurts
-const CRASH_KEEP = 0.7;              // share of the payout a crash still banks
-const BELT_SPEED = 250;              // px/s at the start of a run
+const CRASH_KEEP = 0.85;             // share of the payout a crash still banks
+const BELT_SPEED = 250;              // px/s at the start of a run, at REF_L
+// The bike size the speeds above were tuned at. Horizontal speeds and pickup
+// spacing scale with the bike, so a run plays the same on a phone, in the
+// panel and full screen - a bigger canvas is just a bigger view.
+const REF_L = 170;
 // A bump's kick must be survivable: at the balance point, letting go stops a
 // 50 deg/s kick within ~15 degrees, so a quick release always saves it.
 const BUMP_KICK = 50;
@@ -141,7 +145,7 @@ export function phase() { return game.phase; }
 
 function layout(w, h) {
   const ground = h * 0.84;
-  const L = Math.max(70, Math.min(w * 0.26, h * 0.42, 170));
+  const L = Math.max(70, Math.min(w * 0.26, h * 0.42, 340));
   const R = L * 0.22;
   return { w, h, ground, L, R, px: w * 0.27, py: ground - R, horizon: h * 0.6 };
 }
@@ -190,6 +194,7 @@ export function attach(canvasEl) {
   resize();
   if (!resizeBound) {
     window.addEventListener('resize', resize);
+    document.addEventListener('fullscreenchange', () => requestAnimationFrame(resize));
     resizeBound = true;
   }
 
@@ -208,6 +213,9 @@ export function attach(canvasEl) {
   canvas.addEventListener('lostpointercapture', up);
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 }
+
+/** Re-measure the canvas - after entering or leaving full screen. */
+export function refit() { resize(); }
 
 function resize() {
   if (!canvas) return;
@@ -344,7 +352,7 @@ function step(dt) {
   const z = zone();
   const progress = game.elapsed / RUN_SECONDS;
   game.speed = 1 + 0.55 * progress;
-  const vx = BELT_SPEED * game.speed;
+  const vx = BELT_SPEED * game.speed * (geo.L / REF_L);
 
   // --- balance physics
   const push = THROTTLE * (1 + 0.12 * progress) * (game.nitro > 0 ? NITRO_PUSH : 1);
@@ -509,7 +517,7 @@ function slam() {
 // --- pickups ------------------------------------------------------------------
 
 function addPickup(kind, a, offset = 0) {
-  game.pickups.push({ kind, a, x: geo.w + 40 + offset, spin: Math.random() * 6 });
+  game.pickups.push({ kind, a, x: geo.w + 40 + offset * (geo.L / REF_L), spin: Math.random() * 6 });
 }
 
 function spawnPattern() {
@@ -1286,7 +1294,7 @@ function drawIdle(w, h, k) {
     ['#3ee08f', 'Keep the front wheel in the GREEN arc to build your multiplier.'],
     ['#ffd23f', 'The GOLD band is the balance point: double points, double climb.'],
     ['#ff9f1c', 'Steer through coin trails. Signs warn you about bumps and potholes.'],
-    ['#ff4f79', 'Past vertical you loop it, and a crash only banks 70%.'],
+    ['#ff4f79', `Past vertical you loop it - a crash still banks ${Math.round(CRASH_KEEP * 100)}%.`],
   ];
   ctx.font = `600 ${Math.round(13 * k)}px ${FONT}`;
   lines.forEach(([color, text], i) => {
@@ -1374,7 +1382,7 @@ export function draw() {
   const w = canvas.width / dpr;
   const h = canvas.height / dpr;
   if (geo.w !== w || geo.h !== h) geo = layout(w, h);
-  const k = Math.max(0.62, Math.min(1, w / 720));
+  const k = Math.max(0.62, Math.min(1.7, w / 720, h / 380));
   const calm = state.settings.reduceMotion;
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);

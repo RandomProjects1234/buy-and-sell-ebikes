@@ -78,7 +78,10 @@ the fun.
 Your bike is on a treadmill in front of a cheering crowd. **Hold** anywhere on
 the canvas (or `Space` / `ArrowUp` / `W`) to open the throttle; let go and the
 engine brake drops the nose. `Space`, `Enter` or a tap starts a run, after a
-3-2-1 countdown you can rev through.
+3-2-1 countdown you can rev through. Press **F** (or the corner button) for
+**full screen** - the whole view becomes the treadmill, and `F` / `Esc` brings
+you back. Browsers without element full screen (iPhone Safari) get the canvas
+pinned over the page instead.
 
 - A gauge arcs around the rear wheel. Keep the needle in the **green** and your
   multiplier climbs (up to x10). The narrow **gold** band is the balance point:
@@ -90,12 +93,12 @@ engine brake drops the nose. `Space`, `Enter` or a tap starts a run, after a
   second early. Ride one out for a SMOOTH bonus.
 - Scrape back from the red for a **close call** bonus. Slam the front wheel
   down and you lose 40% of the multiplier. Loop it past vertical and the run
-  ends with 70% of the payout.
+  ends, but still banks 85% of the payout.
 - The belt speeds up, and the bike gets twitchier, as the run goes on.
 
-Runs are graded **S/A/B/C/D**. An S run pays about 300 test rides early on and
-about 110 seconds of income later (wheelie payouts do not count towards that
-income, so runs cannot inflate each other). Upgrades widen the green band, add
+Runs are graded **S/A/B/C/D**. An S run pays about 750 test rides early on and
+about 250 seconds of income later, before upgrades (wheelie payouts do not
+count towards that income, so runs cannot inflate each other). Upgrades widen the green band, add
 a wheelie bar save, start runs at x2 (Launch Control), stretch nitro, and
 multiply the payout.
 

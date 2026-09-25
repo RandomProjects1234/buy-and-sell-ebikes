@@ -75,9 +75,9 @@ export const UPGRADES = [
     desc: 'One free catastrophe per run. Use it wisely, or immediately.' },
   { id: 'nitro_tank', group: 'wheelie', name: 'Bigger Nitro Tank', cost: 8.8e6, effect: { wheelieNitro: 3 },
     desc: 'Nitro lasts eight seconds instead of five. Hold on to something.' },
-  { id: 'sticky_treadmill', group: 'wheelie', name: 'Sticky Treadmill', cost: 2.75e7, effect: { wheelieMult: 1.4, wheelieZone: 2 },
+  { id: 'sticky_treadmill', group: 'wheelie', name: 'Sticky Treadmill', cost: 2.75e7, effect: { wheelieMult: 1.6, wheelieZone: 2 },
     desc: 'Grippier belt, longer balance, louder crowd.' },
-  { id: 'crowd_barrier', group: 'wheelie', name: 'Crowd Barrier', cost: 1.38e9, effect: { wheelieMult: 1.7 },
+  { id: 'crowd_barrier', group: 'wheelie', name: 'Crowd Barrier', cost: 1.38e9, effect: { wheelieMult: 2.2 },
     desc: 'Now that people can safely watch, people pay to watch. The stands fill up.' },
 
   // --- automation -----------------------------------------------------------

@@ -115,11 +115,11 @@ export function incomePerSec() { return incomeRate; }
  * What an S-grade wheelie run pays before wheelie upgrades - the "stake" the
  * rig is played for. It follows how rich the player is right now so the rig
  * stays worth a ride from the first minute to the last:
- *  - early on, when clicking is the income, an S run is worth ~300 test
- *    rides: better than clicking for the same 45 seconds, not a replacement.
- *  - later, ~110 seconds of income for a ~45 second run: a real bonus for
- *    playing well, but no longer the 20x-income money printer it used to be.
+ *  - early on, when clicking is the income, an S run is worth ~750 test
+ *    rides - several times what clicking earns in the same 45 seconds.
+ *  - later, ~250 seconds of income for a ~45 second run, before the Stunt
+ *    Rig upgrades (up to x3.5 more). Riding well is worth stopping for.
  */
 export function wheelieSRunValue() {
-  return Math.max(clickValue() * 300, incomeRate * 110, 500);
+  return Math.max(clickValue() * 750, incomeRate * 250, 1500);
 }
