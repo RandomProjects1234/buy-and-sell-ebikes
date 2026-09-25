@@ -19,7 +19,7 @@ function lobby(net) {
   return `
   <div class="net-lobby">
     <div class="net-card">
-      <h3>${icon('staff')} Your shop name</h3>
+      <h3>${icon('person')} Your shop name</h3>
       <input class="net-input" id="net-name" maxlength="18" value="${esc(playerName())}"
              data-change="net:name" placeholder="Name your shop">
       <p class="muted small">Everyone in the room sees this next to your numbers.</p>
@@ -89,7 +89,7 @@ function giftPanel(net) {
 export default {
   id: 'network',
   label: 'Network',
-  icon: 'staff',
+  icon: 'person',
   visible: () => true,
   badge: () => {
     const net = netStatus();

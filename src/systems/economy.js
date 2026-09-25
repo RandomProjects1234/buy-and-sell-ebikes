@@ -80,8 +80,6 @@ export function demandFloor(bp) {
 
 let incomeBucket = 0;
 let incomeRate = 0;   // smoothed $/sec, for the header and wheelie scaling
-let autoBucket = 0;
-let autoRate = 0;     // same, but only income the automation produced
 
 export function addMoney(amount, source = 'misc') {
   if (!isFinite(amount) || amount <= 0) return 0;
@@ -90,7 +88,6 @@ export function addMoney(amount, source = 'misc') {
   // Wheelie payouts are staked on this rate, so they must not feed back into
   // it - one good run would otherwise inflate the stake of the next.
   if (source !== 'wheelie' && source !== 'debug') incomeBucket += amount;
-  if (source === 'auto') autoBucket += amount;
   if (source === 'click') state.stats.clickEarned += amount;
   emit(EVENTS.MONEY, { amount, source });
   return amount;
@@ -109,26 +106,10 @@ export function sampleIncome(dt) {
   if (dt <= 0) return;
   const blend = Math.min(1, dt / 3);       // ~3 second smoothing window
   incomeRate += (incomeBucket / dt - incomeRate) * blend;
-  autoRate += (autoBucket / dt - autoRate) * blend;
   incomeBucket = 0;
-  autoBucket = 0;
-  // Persisted so offline earnings can be paid at the rate the automation was
-  // actually achieving when the tab closed.
-  state.stats.autoRate = autoRate;
 }
 
 export function incomePerSec() { return incomeRate; }
-export function autoIncomePerSec() { return autoRate; }
-
-/**
- * Restore the smoothed rates from a save. Without this the first tick after a
- * reload would blend the saved automated rate down towards zero and, with it,
- * the offline payout the next session would be based on.
- */
-export function seedIncomeRate(value) {
-  incomeRate = Math.max(incomeRate, value);
-  autoRate = Math.max(autoRate, value);
-}
 
 /**
  * What an S-grade wheelie run pays before wheelie upgrades - the "stake" the

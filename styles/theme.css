@@ -356,3 +356,21 @@ body::after {
 .grade-B { background: #4cc9f0; }
 .grade-C { background: #b86bff; }
 .grade-D { background: #968cc6; }
+
+/* --- crate bulk buttons + haul totals ------------------------------------------ */
+
+.crate-card .card-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.crate-card .card-actions .btn-primary { grid-column: 1 / -1; }
+.btn-bulk { flex-direction: column; gap: 1px; padding: 6px 8px; line-height: 1.1; }
+.btn-bulk i { font: 600 10px var(--mono); font-style: normal; opacity: .75; }
+
+.haul-tiers { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.haul-tier {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--c) 50%, transparent);
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  color: var(--c);
+  font: 600 11px var(--mono);
+}
+.haul-tier b { color: var(--text); margin-left: 3px; }

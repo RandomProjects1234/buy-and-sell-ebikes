@@ -14,6 +14,8 @@ const PALETTES = [
   { body: '#9a55f5', accent: '#e4c4ff', rim: '#6536b8', tyre: '#170f2c' },
   { body: '#ff9a1f', accent: '#ffe7a0', rim: '#b8680f', tyre: '#160e28' },
   { body: '#ff3b62', accent: '#ffb3c3', rim: '#a01c3a', tyre: '#150c24' },
+  { body: '#1b1238', accent: '#b6a2ff', rim: '#3d2c86', tyre: '#07040f' },   // void
+  { body: '#e2cfa4', accent: '#ffb347', rim: '#8a6b3f', tyre: '#2a1d10' },   // fossil
 ];
 
 function palette(tier) { return PALETTES[Math.min(PALETTES.length - 1, Math.max(0, tier | 0))]; }
@@ -44,6 +46,19 @@ function auraFor(tier, secret) {
     return `<g class="art-secret">
       <circle cx="170" cy="120" r="96" fill="none" stroke="#8ef6ff" stroke-width="1.5" opacity=".5"/>
       <circle cx="170" cy="120" r="112" fill="none" stroke="#8ef6ff" stroke-width="1" opacity=".25"/>
+    </g>`;
+  }
+  if (tier === 6) {
+    // a slow swirl of dark rings: the bike is sitting at the edge of a hole
+    return `<g class="art-secret">
+      <circle cx="170" cy="120" r="92" fill="none" stroke="#8f7bff" stroke-width="2" stroke-dasharray="18 10" opacity=".55"/>
+      <circle cx="170" cy="120" r="110" fill="none" stroke="#3d2c86" stroke-width="6" stroke-dasharray="4 14" opacity=".6"/>
+    </g>`;
+  }
+  if (tier >= 7) {
+    return `<g class="art-pulse">
+      <circle cx="170" cy="120" r="90" fill="none" stroke="#ffb347" stroke-width="2.5" opacity=".5"/>
+      <circle cx="170" cy="120" r="106" fill="none" stroke="#f0dcae" stroke-width="1.5" stroke-dasharray="2 6" opacity=".45"/>
     </g>`;
   }
   if (tier >= 5) {

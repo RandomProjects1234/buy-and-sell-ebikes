@@ -15,7 +15,7 @@ import * as wheelie from '../minigame/wheelie.js';
 let host = null;
 let enabled = false;
 
-const GRANTS = [1e3, 1e5, 1e7, 1e9, 1e12, 1e15];
+const GRANTS = [1e3, 1e5, 1e7, 1e9, 1e12, 1e15, 1e18, 1e21, 1e24];
 
 function html() {
   return `

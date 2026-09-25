@@ -17,7 +17,7 @@ export const ICONS = {
   crate: wrap('<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>'),
   wrench: wrap('<path d="M15 3a5 5 0 0 0-4.6 7L3 17.4 6.6 21l7.4-7.4A5 5 0 1 0 15 3z"/>'),
   garage: wrap('<path d="M3 10l9-6 9 6v10H3z"/><circle cx="8.5" cy="16" r="2"/><circle cx="15.5" cy="16" r="2"/><path d="M8.5 16h7"/>'),
-  staff: wrap('<circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>'),
+  person: wrap('<circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>'),
   farm: wrap('<path d="M3 21V10l6 4V10l6 4V6l6 4v11z"/><path d="M8 21v-4M14 21v-4"/>'),
   upgrade: wrap('<path d="M12 20V5"/><path d="M6 11l6-6 6 6"/>'),
   wheelie: wrap('<path d="M4 18a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><path d="M19 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M8 14l5-7 4 6"/>'),

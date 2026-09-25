@@ -7,7 +7,7 @@
 //   sellMult      multiplies every sale
 //   luck          chance for a crate drop to roll one tier higher
 //   crateDiscount fraction off crate prices
-//   autoMult      worker speed multiplier
+//   autoMult      facility output multiplier
 //   wheelieMult   wheelie payout multiplier
 //   wheelieZone   widens the wheelie sweet zone (degrees each side)
 //   wheelieSave   free crashes per run
@@ -81,14 +81,14 @@ export const UPGRADES = [
     desc: 'Now that people can safely watch, people pay to watch. The stands fill up.' },
 
   // --- automation -----------------------------------------------------------
-  { id: 'shift_leader', group: 'auto', name: 'Shift Leader', cost: 3.3e6, effect: { autoMult: 1.25 },
-    desc: 'Somebody has to tell the facilities which pile is which.' },
-  { id: 'overtime', group: 'auto', name: 'Overtime Pay', cost: 4.95e8, effect: { autoMult: 1.5 },
-    desc: 'The machines do not care, but the people oiling them do.' },
+  { id: 'shift_leader', group: 'auto', name: 'Conveyor Belts', cost: 3.3e6, effect: { autoMult: 1.25 },
+    desc: 'Parts stop falling off the back of the yard on the way to the bin.' },
+  { id: 'overtime', group: 'auto', name: 'Three-Phase Supply', cost: 4.95e8, effect: { autoMult: 1.5 },
+    desc: 'A proper power feed. The lights no longer dim when the Fab Lab starts up.' },
   { id: 'robot_arms', group: 'auto', name: 'Robot Arms', cost: 1.38e11, effect: { autoMult: 2 },
     desc: 'Six axes, zero complaints, one very specific safety interlock.' },
-  { id: 'night_crew', group: 'auto', name: 'Night Crew', cost: 2.2e7, effect: { offlineHours: 6 },
-    desc: 'The lights stay on after you log off. Offline earnings cap goes up.' },
+  { id: 'night_crew', group: 'auto', name: 'Timer Switches', cost: 2.2e7, effect: { offlineHours: 6 },
+    desc: 'The facilities keep printing after you log off. Offline cap goes up by six hours.' },
 ];
 
 export const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map((u) => [u.id, u]));
@@ -98,5 +98,5 @@ export const UPGRADE_GROUPS = [
   { id: 'sell', name: 'Sales Floor' },
   { id: 'crate', name: 'Sourcing' },
   { id: 'wheelie', name: 'Stunt Rig' },
-  { id: 'auto', name: 'Operations' },
+  { id: 'auto', name: 'Facilities' },
 ];

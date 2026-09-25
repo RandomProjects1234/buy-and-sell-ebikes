@@ -12,6 +12,7 @@
 // cheating, and a hostile peer could send you a silly bike. That is a trade
 // everyone in the room has already made by sharing a code.
 
+import { TIERS } from '../data/parts.js';
 import { state } from '../core/state.js';
 import { emit, EVENTS } from '../core/events.js';
 import { incomePerSec } from '../systems/economy.js';
@@ -200,9 +201,9 @@ function sanitiseBuild(item) {
     bp: String(item.bp || 'scoot_lite').slice(0, 40),
     name: item.name.slice(0, 40),
     kind: item.kind === 'scooter' ? 'scooter' : 'bike',
-    tier: Math.max(0, Math.min(5, Math.round(num(item.tier, 5)))),
+    tier: Math.max(0, Math.min(TIERS.length - 1, Math.round(num(item.tier, TIERS.length - 1)))),
     quality: num(item.quality, 20) || 1,
-    value: num(item.value, 1e18),
+    value: num(item.value, 1e24),   // a Fossil Surron is ~1e23
     speed: num(item.speed, 1e6),
     range: num(item.range, 1e7),
     accel: num(item.accel, 999) || 1,

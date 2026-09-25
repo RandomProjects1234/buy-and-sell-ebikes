@@ -2,20 +2,25 @@
 //
 // The ratio is deliberately worse than the ~19x value gap between tiers, so
 // salvaging is a way to clear dead stock rather than a shortcut up the ladder.
-// Hiring a Yard Foreman pulls it back to slightly profitable, which is the
-// whole point of the manager unlock.
+// It stops at Nuclear: Void and Fossil parts only come out of their crates.
 
 import { state, countPart, removePart, addPart } from '../core/state.js';
-import { PARTS, partsOfTier, TIERS } from '../data/parts.js';
+import { PARTS, partsOfTier, CRATE_ONLY_TIER } from '../data/parts.js';
 import { pick } from '../core/rng.js';
 import { emit, EVENTS } from '../core/events.js';
 
 export const BASE_RATIO = 12;
-export const MANAGER_RATIO = 8;
-const MAX_TIER = TIERS.length - 1;
+// Highest tier you can melt down: its output is one tier up, which must not be
+// a crate-only tier.
+const TOP_SALVAGE_TIER = CRATE_ONLY_TIER - 2;
 
 export function salvageRatio() {
-  return state.managers.sorter ? MANAGER_RATIO : BASE_RATIO;
+  return BASE_RATIO;
+}
+
+/** Can this tier be melted at all (ignoring how many you own)? */
+export function salvageable(tier) {
+  return tier <= TOP_SALVAGE_TIER;
 }
 
 export function partsOfTierOwned(tier) {
@@ -27,14 +32,8 @@ export function partsOfTierOwned(tier) {
 }
 
 export function canSalvage(tier) {
-  if (tier >= MAX_TIER) return false;
+  if (!salvageable(tier)) return false;
   return partsOfTierOwned(tier) >= salvageRatio();
-}
-
-/** The lowest tier with enough surplus to melt down. Used by Parts Sorters. */
-export function nextSalvageTier() {
-  for (let t = 0; t < MAX_TIER; t += 1) if (canSalvage(t)) return t;
-  return -1;
 }
 
 export function salvage(tier, { silent = false } = {}) {

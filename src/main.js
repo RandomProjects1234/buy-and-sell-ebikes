@@ -9,7 +9,7 @@ import {
   startTutorial, shouldAutoStart,
 } from './ui/render.js';
 import { initDebug } from './core/debug.js';
-import { sampleIncome, seedIncomeRate } from './systems/economy.js';
+import { sampleIncome } from './systems/economy.js';
 import { tickAutomation, runOffline } from './systems/automation.js';
 import { tickDemand } from './systems/market.js';
 import { checkUnlocks } from './systems/unlocks.js';
@@ -23,11 +23,8 @@ function boot() {
   initDebug(registerActions);
 
   if (loaded) {
-    seedIncomeRate(state.stats.autoRate || 0);
     const report = runOffline(offlineMs);
-    if (report && (report.earned > 0 || report.builds > 0 || report.crates > 0)) {
-      offlineModal(report);
-    }
+    if (report && report.parts > 0) offlineModal(report);
   }
 
   onTick((dt) => {

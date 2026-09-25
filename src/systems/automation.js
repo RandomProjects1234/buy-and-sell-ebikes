@@ -1,45 +1,20 @@
 // ---------------------------------------------------------------------------
-// AUTOMATION - staff, facilities and offline progress
+// AUTOMATION - facilities and offline progress
 // ---------------------------------------------------------------------------
-// Every role automates one link of the manual chain. Rates are fractional, so
-// each role keeps an accumulator and fires whole actions when it crosses 1.
+// Facilities print parts of a fixed tier, a fraction at a time: each one keeps
+// an accumulator and drops whole parts into the bin when it crosses 1. Building
+// and selling stay in the player's hands.
 
-import { state, workerCount, farmLevel, addPart } from '../core/state.js';
-import { ROLES, ROLE_BY_ID, FARMS, FARM_BY_ID, COMMISSION } from '../data/staff.js';
+import { state, farmLevel, addPart } from '../core/state.js';
+import { FARMS, FARM_BY_ID } from '../data/facilities.js';
 import { partsOfTier } from '../data/parts.js';
-import { BP_BY_ID } from '../data/blueprints.js';
 import { pick } from '../core/rng.js';
 import { geometricCost } from '../core/format.js';
-import { autoMult, spend, crateCost, autoIncomePerSec, offlineCapHours, addMoney } from './economy.js';
-import { openCrate, bestAffordableCrate, crateVisible } from './crates.js';
-import { CRATE_BY_ID } from '../data/crates.js';
-import { autoFill, validate, craft } from './crafting.js';
-import { visibleBlueprints } from './unlocks.js';
-import { sellItem } from './market.js';
-import { nextSalvageTier, salvage } from './salvage.js';
+import { autoMult, spend, offlineCapHours } from './economy.js';
 
-const acc = { runner: 0, sorter: 0, wrench: 0, closer: 0, farms: {} };
+const acc = {};   // farmId -> fractional parts owed
 
 // --- buying -----------------------------------------------------------------
-
-export function hireCost(roleId, count = 1) {
-  const role = ROLE_BY_ID[roleId];
-  return geometricCost(role.cost, role.growth, workerCount(roleId), count);
-}
-
-export function hire(roleId, count = 1) {
-  const cost = hireCost(roleId, count);
-  if (!spend(cost)) return false;
-  state.workers[roleId] = workerCount(roleId) + count;
-  return true;
-}
-
-export function buyManager(roleId) {
-  const role = ROLE_BY_ID[roleId];
-  if (state.managers[roleId] || !spend(role.managerCost)) return false;
-  state.managers[roleId] = true;
-  return true;
-}
 
 export function farmCost(farmId, count = 1) {
   const farm = FARM_BY_ID[farmId];
@@ -53,94 +28,36 @@ export function buyFarm(farmId, count = 1) {
   return true;
 }
 
-export function roleVisible(role) {
-  return workerCount(role.id) > 0 || state.lifetime >= (role.unlock?.lifetime ?? 0);
-}
-
 export function farmVisible(farm) {
   return farmLevel(farm.id) > 0 || state.lifetime >= (farm.unlock?.lifetime ?? 0);
 }
 
 // --- the actual work --------------------------------------------------------
 
-function runnerAction() {
-  let crate = null;
-  if (state.managers.runner) {
-    crate = bestAffordableCrate();
-  } else {
-    const chosen = CRATE_BY_ID[state.cfg.runnerCrate];
-    if (chosen && crateVisible(chosen) && state.money >= crateCost(chosen)) crate = chosen;
+/**
+ * Drop `made` parts of a tier into the bin. Big batches (offline catch-up)
+ * are spread evenly over the tier's parts instead of rolled one at a time.
+ */
+function printParts(tier, made) {
+  const pool = partsOfTier(tier);
+  if (made > pool.length * 4) {
+    const each = Math.floor(made / pool.length);
+    for (const id of pool) addPart(id, each);
+    made -= each * pool.length;
   }
-  if (!crate) return false;
-  return !!openCrate(crate.id, { silent: true });
+  for (let i = 0; i < made; i += 1) addPart(pick(pool), 1);
 }
-
-function sorterAction() {
-  const tier = nextSalvageTier();
-  if (tier < 0) return false;
-  return !!salvage(tier, { silent: true });
-}
-
-/** The Head Mechanic builds the most valuable thing the bin can actually make. */
-function chooseBlueprint() {
-  if (!state.managers.wrench) return BP_BY_ID[state.cfg.wrenchBlueprint] || null;
-  let best = null;
-  for (const bp of visibleBlueprints()) {
-    if (bp.consumes) continue;   // never auto-eat a build
-    if (best && bp.base <= best.base) continue;
-    const fit = autoFill(bp, 'cheap');
-    if (fit && validate(bp, fit).ok) best = bp;
-  }
-  return best;
-}
-
-function wrenchAction() {
-  const bp = chooseBlueprint();
-  if (!bp) return false;
-  const fit = autoFill(bp, 'cheap');
-  if (!fit || !validate(bp, fit).ok) return false;
-  return !!craft(bp.id, fit);
-}
-
-function closerAction() {
-  let best = null;
-  for (const it of state.garage) {
-    if (it.starter) continue;
-    if (!best || it.value > best.value) best = it;
-  }
-  if (!best) return false;
-  const rate = state.managers.closer ? 1 : COMMISSION;
-  return sellItem(best.uid, { rate, silent: true, source: 'auto' }) > 0;
-}
-
-const ACTIONS = { runner: runnerAction, sorter: sorterAction, wrench: wrenchAction, closer: closerAction };
-const MAX_ACTIONS_PER_TICK = 40;   // keeps a long frame from locking the page
 
 export function tickAutomation(dt) {
   const speed = autoMult();
-
-  for (const role of ROLES) {
-    const n = workerCount(role.id);
-    if (!n) continue;
-    acc[role.id] += role.rate * n * speed * dt;
-    let budget = Math.min(MAX_ACTIONS_PER_TICK, Math.floor(acc[role.id]));
-    if (budget <= 0) continue;
-    acc[role.id] -= budget;
-    while (budget > 0) {
-      if (!ACTIONS[role.id]()) break;   // nothing to do - drop the rest
-      budget -= 1;
-    }
-  }
-
   for (const farm of FARMS) {
     const level = farmLevel(farm.id);
     if (!level) continue;
-    acc.farms[farm.id] = (acc.farms[farm.id] || 0) + farm.rate * level * speed * dt;
-    const made = Math.floor(acc.farms[farm.id]);
+    acc[farm.id] = (acc[farm.id] || 0) + farm.rate * level * speed * dt;
+    const made = Math.floor(acc[farm.id]);
     if (made <= 0) continue;
-    acc.farms[farm.id] -= made;
-    const pool = partsOfTier(farm.tier);
-    for (let i = 0; i < Math.min(made, 500); i += 1) addPart(pick(pool), 1);
+    acc[farm.id] -= made;
+    printParts(farm.tier, made);
   }
 }
 
@@ -150,20 +67,13 @@ export function farmOutput() {
   return FARMS.reduce((sum, f) => sum + f.rate * farmLevel(f.id) * speed, 0);
 }
 
-export function roleRate(roleId) {
-  return ROLE_BY_ID[roleId].rate * workerCount(roleId) * autoMult();
-}
-
 // --- offline ----------------------------------------------------------------
 
 const OFFLINE_EFFICIENCY = 0.6;
-const LIVE_SIM_SECONDS = 60;
 
 /**
- * Catch up after the tab was closed. The first minute is simulated properly so
- * the garage and parts bin look alive; the rest is paid out at the measured
- * automated income rate, which keeps a 24 hour absence from trying to simulate
- * a million crate openings.
+ * Catch up after the tab was closed: the facilities kept printing, at 60% of
+ * their live rate, up to the offline cap.
  */
 export function runOffline(ms) {
   const capSeconds = offlineCapHours() * 3600;
@@ -171,27 +81,18 @@ export function runOffline(ms) {
   const seconds = Math.min(rawSeconds, capSeconds);
   if (seconds < 30) return null;
 
-  const before = { money: state.money, builds: state.stats.builds, crates: state.stats.cratesOpened, sales: state.stats.sales };
+  const speed = autoMult();
+  const byFarm = [];
+  let parts = 0;
+  for (const farm of FARMS) {
+    const level = farmLevel(farm.id);
+    if (!level) continue;
+    const made = Math.floor(farm.rate * level * speed * seconds * OFFLINE_EFFICIENCY);
+    if (made <= 0) continue;
+    printParts(farm.tier, made);
+    byFarm.push({ farm, made });
+    parts += made;
+  }
 
-  const simSeconds = Math.min(seconds, LIVE_SIM_SECONDS);
-  for (let t = 0; t < simSeconds; t += 1) tickAutomation(1);
-
-  const rate = state.stats.autoRate || autoIncomePerSec();
-  const idleSeconds = Math.max(0, seconds - simSeconds);
-  const idleCash = rate * idleSeconds * OFFLINE_EFFICIENCY;
-  if (idleCash > 0) addMoney(idleCash, 'offline');
-
-  return {
-    seconds,
-    capped: rawSeconds > capSeconds,
-    earned: state.money - before.money,
-    builds: state.stats.builds - before.builds,
-    crates: state.stats.cratesOpened - before.crates,
-    sales: state.stats.sales - before.sales,
-  };
-}
-
-export function resetAccumulators() {
-  acc.runner = acc.sorter = acc.wrench = acc.closer = 0;
-  acc.farms = {};
+  return { seconds, capped: rawSeconds > capSeconds, parts, byFarm };
 }

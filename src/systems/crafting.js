@@ -15,6 +15,13 @@ import { maybeDisplay } from './market.js';
 
 const QUALITY_EXPONENT = 1.8;
 
+// The takeover card for the first build of each endgame model, by tier.
+const MILESTONE_SUB = {
+  5: 'A working nuclear engine bike. Somehow.',
+  6: 'Built out of parts from nowhere. It is in your garage anyway.',
+  7: 'Older than the dinosaurs, faster than the light it leaves behind.',
+};
+
 export function slotReqs(bp) {
   return blueprintSlots(bp).map((slot) => ({
     slot,
@@ -175,8 +182,8 @@ export function craft(bpId, selection) {
   if ((bp.tier >= 5 || bp.hidden) && state.crafted[bp.id] === 1) {
     emit(EVENTS.BIG_WIN, {
       text: bp.name.toUpperCase(),
-      sub: bp.hidden ? 'It should not exist. It is in your garage.' : 'A working nuclear engine bike. Somehow.',
-      kind: bp.hidden ? 'secret' : 'nuclear',
+      sub: MILESTONE_SUB[bp.tier] || MILESTONE_SUB[5],
+      kind: bp.tier >= 7 ? 'fossil' : bp.tier === 6 ? 'void' : 'nuclear',
     });
   }
   maybeDisplay(item);

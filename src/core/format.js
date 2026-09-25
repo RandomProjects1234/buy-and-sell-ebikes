@@ -50,6 +50,12 @@ export function fmtPct(fraction, { sign = true } = {}) {
   return sign && pct > 0 ? '+' + body : body;
 }
 
+/** Drop odds: 0.975 -> "97.5%", 0.92 -> "92%", 0.001 -> "0.1%". */
+export function fmtOdds(fraction) {
+  const pct = fraction * 100;
+  return `${pct >= 1 ? +pct.toFixed(1) : +pct.toPrecision(2)}%`;
+}
+
 /** 3.5 -> "3.5x" */
 export function fmtMult(x) {
   return fmtNum(x) + 'x';

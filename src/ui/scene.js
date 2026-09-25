@@ -11,7 +11,8 @@
 //
 // The sky follows the tier of the bike in the window, so putting a better bike
 // on the stand visibly changes the shop: a warm afternoon for scrap, a violet
-// night for exotics, a red reactor dusk for nuclear builds.
+// night for exotics, a red reactor dusk for nuclear builds, a black sky for
+// void and an amber prehistoric dusk for fossil.
 
 const SKIES = [
   // top, upper, middle, horizon, sun top, sun bottom, floor line
@@ -21,6 +22,10 @@ const SKIES = [
   { sky: ['#1c0b4d', '#5a23b8', '#b44cf0', '#ff8ee0'], sun: ['#ffe0ff', '#ff6fd8'], grid: '#d27bff' },
   { sky: ['#3a1650', '#b8367a', '#ff7a3d', '#ffd166'], sun: ['#fff6c2', '#ffae2e'], grid: '#ffb13d' },
   { sky: ['#2a0620', '#8a0f3c', '#ff3d5e', '#ffb199'], sun: ['#fff2f4', '#ff4d6d'], grid: '#ff5577' },
+  // void: a black sky with an indigo event horizon where the sun should be
+  { sky: ['#030108', '#120a33', '#3b1f8f', '#8f7bff'], sun: ['#0b0620', '#8f7bff'], grid: '#8f7bff' },
+  // fossil: an amber, prehistoric dusk
+  { sky: ['#2b1a0a', '#7a4a1a', '#d98b3a', '#ffe0a3'], sun: ['#fff4d6', '#ffb347'], grid: '#ffcf7a' },
 ];
 
 export function skyFor(tier) { return SKIES[Math.min(SKIES.length - 1, Math.max(0, tier | 0))]; }

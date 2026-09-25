@@ -13,7 +13,14 @@ export const TIERS = [
   { id: 3, key: 'exotic',      name: 'Exotic',      color: '#b06bff', glow: 'rgba(176,107,255,.65)', value: 34000 },
   { id: 4, key: 'hypertech',   name: 'Hypertech',   color: '#ffab2e', glow: 'rgba(255,171,46,.7)',  value: 900000 },
   { id: 5, key: 'nuclear',     name: 'Nuclear',     color: '#ff4d6d', glow: 'rgba(255,77,109,.8)',  value: 42000000 },
+  { id: 6, key: 'void',        name: 'Void',        color: '#8f7bff', glow: 'rgba(143,123,255,.85)', value: 3e13 },
+  { id: 7, key: 'fossil',      name: 'Fossil',      color: '#f0dcae', glow: 'rgba(240,220,174,.9)',  value: 5e21 },
 ];
+
+// Void and Fossil parts only ever come out of their crates: salvage cannot
+// make them and crate luck cannot roll up into them, so the odds printed on
+// the Void Crate and the Fossil Crate are the real odds.
+export const CRATE_ONLY_TIER = 6;
 
 export const SLOTS = [
   { id: 'frame',      name: 'Frame',      unit: 'kg', statLabel: 'Weight',    invert: true,  base: 22,  step: 0.82 },
@@ -50,6 +57,10 @@ const CATALOG = {
      ['Maraging Steel Skeleton', 'The alloy they build rocket cases out of.']],
     [['Graphene Monocoque Frame', 'One atom thick, somehow. Physicists are furious.'],
      ['Neutron-Weave Chassis', 'Denser than it has any business being.']],
+    [['Void-Forged Frame', 'Absorbs light, sound and, occasionally, eye contact.'],
+     ['Null-Space Spine', 'Measures slightly longer on the inside.']],
+    [['Petrified Raptor Frame', 'Seventy million years old and still stiffer than carbon.'],
+     ['Amber-Cast Chassis', 'There is a mosquito in the down tube. Do not ask it anything.']],
   ],
   motor: [
     [['Leaf Blower Motor', 'It works. It is not happy about it.'],
@@ -69,6 +80,10 @@ const CATALOG = {
      ['Counter-Rotating Twin Drive', 'Two motors fighting. You win.']],
     [['Miniature Fusion Core', 'A star the size of a grapefruit. Warranty void if opened.'],
      ['Antimatter Trickle Drive', 'Consumes one nanogram a week. Do not sniff it.']],
+    [['Event Horizon Drive', 'Anything that goes in does not come back out. Including torque.'],
+     ['Dark-Matter Rotor', 'Spins. Nobody can see what it is spinning.']],
+    [['T-Rex Torque Unit', 'Tiny arms, enormous output.'],
+     ['Primordial Core Motor', 'Runs on the heat left over from the Cretaceous.']],
   ],
   battery: [
     [['Taped 18650 Pack', 'The tape is structural. Genuinely.'],
@@ -88,6 +103,10 @@ const CATALOG = {
      ['Vacuum Energy Tap', 'Legally distinct from a perpetual motion machine.']],
     [['Tokamak Capacitor Ring', 'Contains a plasma donut. Do not name it.'],
      ['Singularity Cell', 'Charge time: negative four seconds.']],
+    [['Vacuum Decay Cell', 'Full charge forever, or the universe ends. Probably the first one.'],
+     ['Void Reservoir Pack', 'Stores energy somewhere else entirely.']],
+    [['Fossil Fuel Cell (Literal)', 'An actual fossil, somehow holding 90 kWh.'],
+     ['Trilobite Capacitor Bank', 'Two hundred trilobites, wired in series. They seem fine.']],
   ],
   wheels: [
     [['Warped 26in Rims', 'Wobble is a personality, not a defect.'],
@@ -107,6 +126,10 @@ const CATALOG = {
      ['Airless Lattice Wheels', 'Printed in one piece, somewhere secret.']],
     [['Mag-Lev Contact Ring', 'Barely touches the road. Neither do you.'],
      ['Reactive Plasma Tread', 'Leaves a glowing line down the tarmac.']],
+    [['Hollow-Point Void Rims', 'The spokes go somewhere you cannot follow.'],
+     ['Negative-Space Tyres', 'Grip the road from the other side.']],
+    [['Ammonite Spiral Wheels', 'Nature invented the perfect wheel first. It took a while.'],
+     ['Petrified Redwood Rims', 'Older than the concept of roads.']],
   ],
   brakes: [
     [['Rubbing Rim Brakes', 'Stops you eventually. Emotionally, first.'],
@@ -126,6 +149,10 @@ const CATALOG = {
      ['Predictive ABS Suite', 'Brakes before you decide to.']],
     [['Graviton Anchor Brakes', 'Briefly makes you heavier than a bus.'],
      ['Field-Collapse Retarders', 'Stops 3,000 mph. Somehow.']],
+    [['Entropy Brakes', 'Stops you by making the concept of speed less organised.'],
+     ['Null-Field Calipers', 'Momentum is deleted, not converted.']],
+    [['Triceratops-Horn Calipers', 'Three pistons. Obviously.'],
+     ['Tar-Pit Dampers', 'Everything that goes in slows down. Everything.']],
   ],
   controller: [
     [['Fried 15A Controller', 'Smells faintly of victory and solder.'],
@@ -145,6 +172,10 @@ const CATALOG = {
      ['Self-Rewriting Firmware', 'Patched itself overnight. Nobody knows why.']],
     [['Fusion Containment ECU', 'The only thing between you and a small sun.'],
      ['Causality Governor', 'Stops you arriving before you leave.']],
+    [['Void Oracle ECU', 'Knows the road before the road exists.'],
+     ['Silence Engine', 'Controls the motor by not controlling anything.']],
+    [['Fossilised Brain Chip', 'A velociraptor was the original firmware.'],
+     ['Deep-Time Controller', 'Plans your ride in geological epochs.']],
   ],
 };
 
@@ -191,8 +222,12 @@ export const PART_IDS = Object.keys(PARTS);
 
 export function getPart(id) { return PARTS[id]; }
 
+const TIER_CACHE = new Map();
+
+/** Part ids of one tier. Cached - crate bulk buys call this per drop. */
 export function partsOfTier(tier) {
-  return PART_IDS.filter((id) => PARTS[id].tier === tier);
+  if (!TIER_CACHE.has(tier)) TIER_CACHE.set(tier, PART_IDS.filter((id) => PARTS[id].tier === tier));
+  return TIER_CACHE.get(tier);
 }
 
 export function partsBySlotTier(slot, tier) {

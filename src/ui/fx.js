@@ -121,6 +121,8 @@ export function toast(text, kind = 'info') {
 const BIG_WIN_STYLE = {
   nuclear: { color: '#ff4d6d', flash: 'rgba(255,77,109,.5)', shake: 16 },
   secret:  { color: '#8ef6ff', flash: 'rgba(142,246,255,.5)', shake: 14 },
+  void:    { color: '#8f7bff', flash: 'rgba(60,30,160,.6)', shake: 18 },
+  fossil:  { color: '#f0dcae', flash: 'rgba(255,190,90,.55)', shake: 22 },
   mythic:  { color: '#ffab2e', flash: 'rgba(255,171,46,.4)', shake: 10 },
   ipo:     { color: '#49c97a', flash: 'rgba(73,201,122,.45)', shake: 12 },
 };

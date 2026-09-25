@@ -45,14 +45,9 @@ export function defaultState() {
     showroom: starterBike(), // the build on display (boosts click income)
 
     upgrades: {},       // upgradeId -> true
-    workers: {},        // roleId -> count
-    managers: {},       // roleId -> true
     farms: {},          // farmId -> level
 
     cfg: {
-      runnerCrate: 'scrap_crate',
-      wrenchBlueprint: 'scoot_lite',
-      closerKeepBest: true,
       autoShowroom: true,
     },
 
@@ -97,6 +92,13 @@ export function migrate(loaded) {
     if (!isFinite(merged[key])) merged[key] = 0;
   }
   if (!Array.isArray(merged.garage)) merged.garage = [];
+  // Staff were removed from the game entirely. Saves from before that still
+  // carry hired workers, managers and their settings - drop them, so nothing
+  // keeps working in the background.
+  delete merged.workers;
+  delete merged.managers;
+  for (const key of ['runnerCrate', 'wrenchBlueprint', 'closerKeepBest']) delete merged.cfg[key];
+  delete merged.stats.autoRate;
   return merged;
 }
 
@@ -141,7 +143,6 @@ export function totalParts() {
 }
 
 export function hasUpgrade(id) { return !!state.upgrades[id]; }
-export function workerCount(id) { return state.workers[id] || 0; }
 export function farmLevel(id) { return state.farms[id] || 0; }
 export function isUnlocked(id) { return !!state.unlocked[id]; }
 export function hasSecret(id) { return !!state.secrets[id]; }

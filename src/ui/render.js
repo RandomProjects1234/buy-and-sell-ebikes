@@ -52,6 +52,8 @@ const RANKS = [
   [1e15, 'Nation State With Bikes'],
   [1e18, 'Physics Advisory Board'],
   [1e21, 'Kirkin Tier'],
+  [1e23, 'Void Dealer'],
+  [1e25, 'Fossil Record'],
 ];
 
 let activePanel = 'crates';
@@ -343,12 +345,11 @@ function settingsModal() {
 export function offlineModal(report) {
   modal(`
     <h2>While you were out</h2>
-    <p class="muted">${fmtTime(report.seconds)} of night shift${report.capped ? ' (capped)' : ''}.</p>
+    <p class="muted">Your facilities ran for ${fmtTime(report.seconds)}${report.capped ? ' (capped)' : ''} and left
+      ${fmtNum(report.parts, { int: true })} parts in the bin.</p>
     <div class="stat-grid">
-      <div class="stat-row"><span>Earned</span><b>${fmtMoney(report.earned)}</b></div>
-      <div class="stat-row"><span>Crates opened</span><b>${fmtNum(report.crates, { int: true })}</b></div>
-      <div class="stat-row"><span>Builds finished</span><b>${fmtNum(report.builds, { int: true })}</b></div>
-      <div class="stat-row"><span>Builds sold</span><b>${fmtNum(report.sales, { int: true })}</b></div>
+      ${report.byFarm.map(({ farm, made }) => `
+      <div class="stat-row"><span>${esc(farm.name)}</span><b>${fmtNum(made, { int: true })} parts</b></div>`).join('')}
     </div>
     <div class="modal-actions"><button class="btn btn-primary" data-act="shell:closemodal">Back to work</button></div>`);
 }

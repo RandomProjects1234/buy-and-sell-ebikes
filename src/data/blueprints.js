@@ -6,7 +6,7 @@
 //   id        stable key (used in saves - never rename)
 //   name      display name
 //   kind      'scooter' (4 slots, cheap, fat margins) | 'bike' (6 slots, prestige)
-//   tier      0-5, matches the part tiers
+//   tier      0-7, matches the part tiers
 //   req       minimum part tier per slot; the slot list is derived from this
 //   exact     {slot: partId} - a specific part this recipe demands
 //   extra     [{slot, tier, count}] - parts consumed on top of the fitted ones
@@ -223,6 +223,49 @@ export const BLUEPRINTS = [
     base: 9e11, speed: 8000, range: 999999, accel: 0.07,
     unlock: { lifetime: 3e10 },
     desc: 'Built from one sacrificed G2 and a workshop nobody can find twice. It arrives before you finish ordering it. Kirkin has left the industry. Kirkin has left, broadly.',
+  },
+
+  // --- Tier 6: void ---------------------------------------------------------
+  // Void parts only come out of the Void Crate (2.5% of its drops). Prices were
+  // paced with a sim of the endgame (see README): each step up is a better use
+  // of the same void parts, so graduating always pays.
+  {
+    id: 'void_bike', name: 'Void bike', kind: 'scooter', tier: 6, req: S4(6),
+    base: 1e15, speed: 12000, range: 999999, accel: 0.05,
+    unlock: { lifetime: 5e12 },
+    desc: 'Four void parts and a deck. It does not so much accelerate as stop being where it was.',
+  },
+  {
+    id: 'void_surron', name: 'Void Surron', kind: 'bike', tier: 6, req: B6(6),
+    cash: 1e15,
+    base: 2e16, speed: 20000, range: 999999, accel: 0.04,
+    unlock: { lifetime: 3e17 },
+    desc: 'A dirt bike made of nothing in particular. Leaves a hole in the trail the shape of a dirt bike.',
+  },
+  {
+    id: 'void_stark_varg', name: 'Void Stark Varg', kind: 'bike', tier: 6, req: B6(6),
+    extra: [{ slot: 'frame', tier: 6, count: 1 }, { slot: 'wheels', tier: 6, count: 1 }],
+    cash: 1e16,
+    base: 2e17, speed: 35000, range: 999999, accel: 0.03,
+    unlock: { lifetime: 1e20 },
+    desc: 'Every part is void, including the two spares bolted on for balance. Unlike the chrome one downstairs, this is the real thing.',
+  },
+
+  // --- Tier 7: fossil ---------------------------------------------------------
+  {
+    id: 'galaxy_yozma', name: 'Galaxy YOZMA', kind: 'bike', tier: 7,
+    req: { frame: 7, motor: 6, battery: 6, wheels: 7, brakes: 6, controller: 6 },
+    cash: 1e21,
+    base: 8e21, speed: 80000, range: 999999, accel: 0.02,
+    unlock: { lifetime: 1e21 },
+    desc: 'A fossil frame on fossil wheels with a void drivetrain in between. Top speed is measured against the local galaxy cluster.',
+  },
+  {
+    id: 'fossil_surron', name: 'Fossil Surron', kind: 'bike', tier: 7, req: B6(7),
+    cash: 5e21,
+    base: 1e23, speed: 150000, range: 999999, accel: 0.01,
+    unlock: { lifetime: 1e22 },
+    desc: 'Six parts older than the continents. The best bike in the game, and the only one a museum has tried to repossess.',
   },
 ];
 

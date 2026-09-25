@@ -2,8 +2,8 @@
 
 An idle/clicker tycoon about the least respectable corner of the e-mobility
 industry. You start with one squeaky **Hyper B** and no money. You end up
-assembling **nuclear engine bikes** that do 3,000 mph, in a warehouse that
-mostly runs itself.
+assembling **nuclear engine bikes** that do 3,000 mph - and then bikes made of
+void and fossil parts that are worth sextillions.
 
 Click the bike to hustle a few dollars → buy a crate of dodgy parts → build a
 scooter or an e-bike at the workbench → flip it → reinvest in better crates
@@ -52,11 +52,11 @@ it any time from the gear icon.
 
 | Tab | What it does |
 | --- | --- |
-| **Crates** | Spend money on crates. Better crates roll better part tiers: Scrap -> Standard -> Performance -> Exotic -> Hypertech -> Nuclear. Drops are nudged toward the slots you are short of. |
-| **Workbench** | Pick a blueprint, fit one part per slot, build it. Parts better than the recipe demands raise **quality**, which raises the sale price. Surplus junk salvages into the tier above at 12:1. |
+| **Crates** | Spend money on crates, one at a time or x10 / x100 / x1000. Better crates roll better part tiers: Scrap -> Standard -> Performance -> Exotic -> Hypertech -> Nuclear -> Void -> Fossil. Drops are nudged toward the slots you are short of. |
+| **Workbench** | Pick a blueprint, fit one part per slot, build it. Parts better than the recipe demands raise **quality**, which raises the sale price. Surplus junk salvages into the tier above at 12:1, up to Nuclear. |
 | **Garage** | Sell finished builds, or put one in the showroom window. |
 | **Upgrades** | One-off permanent buys: click value, sale price, crate luck, facility output, wheelie payout. |
-| **Facilities** | Bike farms that print parts of a fixed tier forever - the idle half of the game. |
+| **Facilities** | Bike farms that print parts of a fixed tier forever, even while the tab is closed - the idle half of the game. Building and selling stay in your hands. |
 | **Wheelie** | A 40 second skill minigame on the shop treadmill (see below). |
 | **Index** | The catalogue: every build, part and crate in the game, with what each recipe needs and what you are holding. Things you have not met yet stay redacted. |
 | **Network** | Multiplayer rooms (see below). |
@@ -64,7 +64,8 @@ it any time from the gear icon.
 **The ladder.** Scrap hacks → parody commuters → performance builds → the
 exotics (including one very shiny trap) → the **Vark Hunter** that exists to
 beat it → **Hypertech**: Stark Vark GT, Tungsten Bull, Carbon Ghost and the
-Tesseract TX flagship → nuclear engine bikes at 3,000 mph. 26 builds in all.
+Tesseract TX flagship → nuclear engine bikes at 3,000 mph → the void and
+fossil endgame. 31 builds in all.
 
 **Scooters vs bikes.** Scooters take four parts and flip fast and cheap - they
 are the money loop. E-bikes take six, cost more and are worth more, and they
@@ -126,6 +127,33 @@ Nuclear parts, a $200B assembly fee, and it *consumes a finished G2* - from the
 garage or straight out of the showroom window. The **Black Site Pallet** crate
 is where the Nuclear parts come from.
 
+### Void and Fossil
+
+Two tiers above Nuclear that **only come out of their crates** - salvage stops
+at Nuclear and crate luck cannot roll up into them, so the printed odds are the
+real odds.
+
+| Crate | Price / unlock | Parts | Odds per part |
+|---|---|---|---|
+| **Void Crate** | $5T, unlocks at $5T earned | 12 | 97.5% Nuclear, 2.5% Void |
+| **Fossil Crate** | $1Sx, unlocks at $1Sx earned | 500 | 80% Nuclear, 19.9% Void, 0.1% Fossil |
+
+Five builds use them, cheapest to best:
+
+| # | Build | Kind | Recipe | Sells for | Unlocks at |
+|---|---|---|---|---|---|
+| 5 | Void bike | scooter | 4 Void parts | $1Qa | $5T |
+| 4 | Void Surron | e-bike | 6 Void parts + $1Qa fee | $20Qa | $300Qa |
+| 3 | Void Stark Varg | e-bike | 6 Void + 2 spare Void parts + $10Qa fee | $200Qa | $100Qi |
+| 2 | Galaxy YOZMA | e-bike | Fossil frame and wheels, 4 Void parts + $1Sx fee | $8Sx | $1Sx |
+| 1 | Fossil Surron | e-bike | 6 Fossil parts + $5Sx fee | $100Sx | $10Sx |
+
+The prices were paced with a simulation of an engaged player (about one click
+a second, crates bought x1000). From the first Void bike it is roughly
+1 minute to the Void Surron, 4 to the Void Stark Varg, 6 to the Fossil Crate,
+~25 to the Galaxy YOZMA and ~45 to the Fossil Surron - with a wide spread,
+because at 0.1% a Fossil part is genuinely a dig.
+
 ## Sound
 
 The game ships 18 real sound files in `audio/` - a socket wrench ratchet on
@@ -177,7 +205,7 @@ button for the tour, and a wipe button for when you want to start clean.
 ## Debug / cheat mode
 
 Add `?debug` to the URL or press `Ctrl+Shift+D`. Gives you money grants, part
-grants per tier, "unlock all blueprints", a fast-forward for automation, and a
+grants per tier, "unlock all blueprints", a fast-forward for facilities, and a
 hard reset.
 
 The console hook is `window.__BSE`:
@@ -185,7 +213,7 @@ The console hook is `window.__BSE`:
 ```js
 __BSE.give(1e9);        // cash
 __BSE.parts(4, 20);     // 20 of every Hypertech part
-__BSE.ff(3600);         // fast-forward an hour of automation
+__BSE.ff(3600);         // fast-forward an hour of facilities
 __BSE.unlockAll();
 __BSE.state;            // live state (a getter, so it never goes stale)
 __BSE.wheelie.snapshot();
@@ -222,7 +250,7 @@ Everything craftable, droppable or purchasable is plain data in `src/data/`:
 | `blueprints.js` | a new bike or scooter; `req` sets the minimum part tier per slot, `exact` demands a specific part, `extra` eats filler parts, `consumes` eats a finished build |
 | `crates.js` | a new crate and its loot table |
 | `upgrades.js` | a new upgrade; the `effect` keys are documented at the top of the file |
-| `staff.js` | facilities (plus the retired staff roles, kept so old saves load) |
+| `facilities.js` | a new facility (a building that prints parts of one tier) |
 
 Part ids are structural (`motor_t3_b`), so renaming a part never breaks an
 existing save.

@@ -5,7 +5,7 @@ import { PARTS, SLOT_BY_ID, TIERS } from '../../data/parts.js';
 import { BP_BY_ID, blueprintSlots } from '../../data/blueprints.js';
 import { visibleBlueprints } from '../../systems/unlocks.js';
 import { slotReqs, candidates, autoFill, validate, quality, previewValue, craft } from '../../systems/crafting.js';
-import { salvageRatio, partsOfTierOwned, canSalvage, salvageAll } from '../../systems/salvage.js';
+import { salvageRatio, partsOfTierOwned, canSalvage, salvageAll, salvageable } from '../../systems/salvage.js';
 import { sellMult } from '../../systems/economy.js';
 import { demandOf } from '../../systems/market.js';
 import { fmtMoney, fmtNum, fmtMult } from '../../core/format.js';
@@ -163,7 +163,7 @@ function binSection() {
       <div class="bin-head">
         <span class="bin-name">${tier.name}</span>
         <span class="muted">${fmtNum(total, { int: true })} parts</span>
-        ${tier.id < TIERS.length - 1 ? `<button class="btn btn-tiny" data-act="bench:salvage" data-tier="${tier.id}" ${can ? '' : 'disabled'}>
+        ${salvageable(tier.id) ? `<button class="btn btn-tiny" data-act="bench:salvage" data-tier="${tier.id}" ${can ? '' : 'disabled'}>
             Salvage ${salvageRatio()}:1
           </button>` : ''}
       </div>
@@ -174,7 +174,7 @@ function binSection() {
   return `<section class="parts-bin">
       <div class="panel-head compact">
         <h3>Parts Bin</h3>
-        <p class="muted">Salvage melts ${salvageRatio()} parts into one from the tier above. It loses value, but it clears dead stock.</p>
+        <p class="muted">Salvage melts ${salvageRatio()} parts into one from the tier above. It loses value, but it clears dead stock. Void and Fossil parts only come from crates.</p>
       </div>
       ${rows || '<p class="empty">The bin is empty. Go open a crate.</p>'}
     </section>`;

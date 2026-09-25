@@ -8,7 +8,7 @@ import { PARTS, PART_IDS, TIERS, SLOTS, SLOT_BY_ID } from '../../data/parts.js';
 import { CRATES } from '../../data/crates.js';
 import { blueprintVisible } from '../../systems/unlocks.js';
 import { crateVisible } from '../../systems/crates.js';
-import { fmtMoney, fmtNum } from '../../core/format.js';
+import { fmtMoney, fmtNum, fmtOdds } from '../../core/format.js';
 import { esc } from '../dom.js';
 import { slotIcon, icon } from '../icons.js';
 import { play } from '../../core/audio.js';
@@ -121,7 +121,7 @@ function crateRow(crate) {
       <b>${esc(crate.name)}${opened ? ` <u>opened x${fmtNum(opened, { int: true })}</u>` : ''}</b>
       <i>${fmtMoney(crate.cost)} &middot; ${crate.drops} parts</i>
       <div class="ix-reqs">${crate.table.map(([t, w]) =>
-    `<span class="ix-req" style="--c:${TIERS[t].color}">${TIERS[t].name} ${((w / total) * 100).toFixed(0)}%</span>`).join('')}</div>
+    `<span class="ix-req" style="--c:${TIERS[t].color}">${TIERS[t].name} ${fmtOdds(w / total)}</span>`).join('')}</div>
       <p class="flavor">${esc(crate.desc)}</p>
     </div>
   </div>`;

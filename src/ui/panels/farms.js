@@ -1,7 +1,7 @@
 // Facilities panel - buildings that print parts while you do something else.
 
 import { state, farmLevel } from '../../core/state.js';
-import { FARMS } from '../../data/staff.js';
+import { FARMS } from '../../data/facilities.js';
 import { TIERS } from '../../data/parts.js';
 import { farmCost, buyFarm, farmVisible, farmOutput } from '../../systems/automation.js';
 import { autoMult } from '../../systems/economy.js';

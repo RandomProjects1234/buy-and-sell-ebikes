@@ -77,6 +77,30 @@ export const CRATES = [
     unlock: { lifetime: 2e10 },
     desc: 'A listing nobody will admit to writing. Five Nuclear-grade parts a pallet, shipped from a building that is not on the map. Whoever Kirkin is, they ship from here.',
   },
+  {
+    id: 'void_crate',
+    name: 'Void Crate',
+    short: 'Void',
+    tier: 6,
+    cost: 5e12,
+    drops: 12,
+    color: '#8f7bff',
+    table: [[5, 97.5], [6, 2.5]],
+    unlock: { lifetime: 5e12 },
+    desc: 'Twelve parts in a box that is bigger on the inside and colder than it should be. Nearly all of it is Nuclear stock. One part in forty came from somewhere else.',
+  },
+  {
+    id: 'fossil_crate',
+    name: 'Fossil Crate',
+    short: 'Fossil',
+    tier: 7,
+    cost: 1e21,
+    drops: 500,
+    color: '#f0dcae',
+    table: [[5, 80], [6, 19.9], [7, 0.1]],
+    unlock: { lifetime: 1e21 },
+    desc: 'Not a crate so much as an excavation: five hundred parts dug out of one rock face. Mostly Nuclear, a fifth of it Void, and one part in a thousand has been in the ground since before the moon had craters.',
+  },
 ];
 
 export const CRATE_BY_ID = Object.fromEntries(CRATES.map((c) => [c.id, c]));
