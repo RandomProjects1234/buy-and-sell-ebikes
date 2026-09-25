@@ -3,7 +3,14 @@
 import { state, setState, defaultState, migrate } from './state.js';
 import { emit, EVENTS } from './events.js';
 
-export const SAVE_KEY = 'buy-and-sell-ebikes.save.v1';
+// ?profile=name keeps a separate save in the same browser - two tabs can be two
+// different shops, which is how multiplayer gets tested on one machine.
+const PROFILE = (() => {
+  try {
+    return (new URLSearchParams(location.search).get('profile') || '').replace(/[^a-z0-9_-]/gi, '').slice(0, 20);
+  } catch { return ''; }
+})();
+export const SAVE_KEY = 'buy-and-sell-ebikes.save.v1' + (PROFILE ? `.${PROFILE}` : '');
 const AUTOSAVE_MS = 15000;
 
 let autosaveTimer = null;

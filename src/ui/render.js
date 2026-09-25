@@ -11,6 +11,7 @@ import { registerActions, initActions, esc, el, isPointerDown, isEditing, eventP
 import { fmtMoney, fmtNum, fmtMult, fmtRate, fmtTime } from '../core/format.js';
 import { bikeSVG } from './bikeArt.js';
 import { sceneSVG } from './scene.js';
+import { eventBrief } from '../net/room.js';
 import { icon } from './icons.js';
 import { floatText, burst, toast, bigWin, pop, initFx, updateShake } from './fx.js';
 import {
@@ -290,9 +291,13 @@ function renderQuest() {
 function renderHud() {
   setText(refs.money, fmtMoney(state.money));
   setText(refs.rate, fmtRate(incomePerSec()));
+  const ev = eventBrief();
+  const left = ev ? Math.ceil(ev.left) : 0;
   setHTML(refs.pills, `
-    <span class="pill" title="Parts in the bin">${fmtNum(totalParts(), { int: true })} parts</span>
-    <span class="pill" title="Builds on the floor">${fmtNum(state.garage.length, { int: true })} builds</span>`);
+    ${ev ? `<button class="pill pill-event" data-act="shell:tab" data-id="network" title="${esc(ev.name)} - you are #${ev.rank}">
+      ${esc(ev.name)} ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} &middot; #${ev.rank}</button>` : ''}
+    <span class="pill pill-parts" title="Parts in the bin">${fmtNum(totalParts(), { int: true })} parts</span>
+    <span class="pill pill-builds" title="Builds on the floor">${fmtNum(state.garage.length, { int: true })} builds</span>`);
 }
 
 // --- modals -----------------------------------------------------------------

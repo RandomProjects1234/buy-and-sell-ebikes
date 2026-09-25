@@ -24,16 +24,16 @@ export function emit(event, payload) {
 export const EVENTS = {
   MONEY: 'money',                 // { amount, source }
   CLICK: 'click',                 // { amount, x, y }
-  CRATE_OPENED: 'crate:opened',   // { crate, drops }
+  CRATE_OPENED: 'crate:opened',   // { crate, count, tally }
   PART_GAINED: 'part:gained',     // { partId, count, source }
   CRAFTED: 'crafted',             // { item, blueprint }
   SOLD: 'sold',                   // { item, amount }
   BLUEPRINT_UNLOCKED: 'bp:unlock',// { blueprint, how }
   PRESTIGE: 'prestige',           // { shares }
-  WHEELIE_END: 'wheelie:end',     // { score, payout }
+  WHEELIE_END: 'wheelie:end',     // { score, payout, crashed, grade }
   TOAST: 'toast',                 // { text, kind }
   DIRTY: 'dirty',                 // panel invalidation hint
   BIG_WIN: 'bigwin',              // { text, sub, kind }
   ACHIEVEMENT: 'achievement',     // { achievement }
-  NET: 'net',                     // { status, code, players, feed }
+  NET: 'net',                     // netStatus() snapshot
 };

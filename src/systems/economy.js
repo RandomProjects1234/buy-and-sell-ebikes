@@ -41,8 +41,15 @@ export function clickValue() {
   return flat * prodEffect('clickMult') * showroomBonus();
 }
 
+// Multiplayer room bonus on sale prices, set by net/room.js (+5% per other
+// shop online, capped). Kept here so every sale sees it without the market
+// having to know about the network.
+let netBonus = 0;
+export function setNetBonus(fraction) { netBonus = Math.max(0, Math.min(0.25, Number(fraction) || 0)); }
+export function getNetBonus() { return netBonus; }
+
 export function sellMult() {
-  return prodEffect('sellMult');
+  return prodEffect('sellMult') * (1 + netBonus);
 }
 
 export function crateCost(crate) {
@@ -78,6 +85,7 @@ export function demandFloor(bp) {
 
 // --- money ------------------------------------------------------------------
 
+const LUMP_SOURCES = new Set(['wheelie', 'debug', 'trade', 'gift', 'event']);
 let incomeBucket = 0;
 let incomeRate = 0;   // smoothed $/sec, for the header and wheelie scaling
 
@@ -85,9 +93,9 @@ export function addMoney(amount, source = 'misc') {
   if (!isFinite(amount) || amount <= 0) return 0;
   state.money += amount;
   state.lifetime += amount;
-  // Wheelie payouts are staked on this rate, so they must not feed back into
-  // it - one good run would otherwise inflate the stake of the next.
-  if (source !== 'wheelie' && source !== 'debug') incomeBucket += amount;
+  // Wheelie payouts and event prizes are staked on this rate, so lump sums
+  // must not feed back into it - one good run would inflate the next stake.
+  if (!LUMP_SOURCES.has(source)) incomeBucket += amount;
   if (source === 'click') state.stats.clickEarned += amount;
   emit(EVENTS.MONEY, { amount, source });
   return amount;

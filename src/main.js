@@ -5,7 +5,7 @@ import { load, save, startAutosave } from './core/save.js';
 import { startClock, onTick, onFrame } from './core/clock.js';
 import { registerActions } from './ui/dom.js';
 import {
-  initUI, renderFrame, currentPanel, offlineModal, markDirty,
+  initUI, renderFrame, currentPanel, offlineModal, markDirty, setPanel,
   startTutorial, shouldAutoStart,
 } from './ui/render.js';
 import { initDebug } from './core/debug.js';
@@ -13,7 +13,7 @@ import { sampleIncome } from './systems/economy.js';
 import { tickAutomation, runOffline } from './systems/automation.js';
 import { tickDemand } from './systems/market.js';
 import { checkUnlocks } from './systems/unlocks.js';
-import { tickNet } from './net/room.js';
+import { tickNet, returnEscrow, joinRoom } from './net/room.js';
 import { update as updateWheelie, draw as drawWheelie } from './minigame/wheelie.js';
 
 function boot() {
@@ -23,8 +23,21 @@ function boot() {
   initDebug(registerActions);
 
   if (loaded) {
+    // Market listings live in escrow; a closed tab is out of the room, so
+    // anything still listed comes back to the garage and bin.
+    returnEscrow();
     const report = runOffline(offlineMs);
     if (report && report.parts > 0) offlineModal(report);
+  }
+
+  // An invite link (?room=CODE) drops you straight into the room.
+  const invite = new URLSearchParams(location.search).get('room');
+  if (invite) {
+    const url = new URL(location.href);
+    url.searchParams.delete('room');
+    history.replaceState(null, '', url.href);
+    setPanel('network');
+    joinRoom(invite);
   }
 
   onTick((dt) => {

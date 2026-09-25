@@ -68,7 +68,7 @@ export function defaultState() {
 
     settings: { muted: false, music: true, musicVolume: 0.75, reduceMotion: false, volume: 0.9, buyAmount: 1 },
     tutorial: { done: false, step: 0 },
-    net: { name: '', lastRoom: '' },
+    net: { name: '', lastRoom: '', trophies: 0, escrow: {} },
 
     time: { started: now, lastTick: now, lastSave: now },
   };

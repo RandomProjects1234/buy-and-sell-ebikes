@@ -28,6 +28,20 @@ export function fmtNum(value, opts = {}) {
   return sign + trim(scaled.toFixed(digits)) + SUFFIXES[group];
 }
 
+/**
+ * Read a price someone typed: "1500", "$1,500", "1.5K", "2.4qa", "10Sx",
+ * "3e15". Suffixes match the ones fmtNum prints. Returns NaN if unreadable.
+ */
+export function parseMoney(text) {
+  const clean = String(text || '').trim().replace(/[$,\s]/g, '');
+  const m = clean.match(/^(\d+(?:\.\d+)?(?:e[+-]?\d+)?)([a-z]*)$/i);
+  if (!m) return NaN;
+  const base = Number(m[1]);
+  if (!m[2]) return base;
+  const idx = SUFFIXES.findIndex((sfx) => sfx && sfx.toLowerCase() === m[2].toLowerCase());
+  return idx > 0 ? base * Math.pow(1000, idx) : NaN;
+}
+
 function trim(s) {
   return s.indexOf('.') >= 0 ? s.replace(/\.?0+$/, '') : s;
 }

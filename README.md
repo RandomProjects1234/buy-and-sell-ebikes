@@ -109,18 +109,37 @@ sloppy one gets B - D with the odd crash.
 
 ### Multiplayer
 
-The **Network** tab hosts or joins a room with a five letter code. There is no
-server: one player hosts and everyone else connects straight to them over
-WebRTC, with the host relaying messages to the rest of the room.
+The **Network** tab hosts or joins a room with a five letter code - or send
+the **invite link** (`?room=CODE`) and your friend lands straight in it. There
+is no game server: one player hosts and everyone else connects straight to them
+over WebRTC, with the host relaying messages to the rest of the room.
 
-- A live leaderboard of every shop in the room - lifetime earnings, income per
-  second, showroom bike, builds finished.
-- A shared feed of what everyone is doing.
-- **Post a build** straight into another player's garage.
+- **Leaderboard + shop profiles.** Sort by earned, income, wheelie best or
+  trophies; click a shop to see the bike in their window, their stats, and
+  send a cheer.
+- **Room chat** with quick replies and cheers, an unread badge on the tab, and
+  toasts when you are elsewhere in the game. Milestones announce themselves:
+  first nuclear/void/fossil builds, S-grade wheelies, fossil finds.
+- **Market.** List a build or a stack of parts at any price (`1.5K`, `20T`,
+  `10Sx` all work) and anyone in the room can buy it. Listed goods sit in
+  escrow - saved with the game - until they sell, you take them back, or you
+  leave the room, so nothing is ever lost to a closed tab.
+- **Gifts.** Send a build or parts straight to another shop.
+- **Events.** The host starts a three minute **Build Rush** (most builds) or
+  **Wheelie Cup** (best wheelie score). Everyone is entered automatically, a
+  countdown pill shows in the top bar, and the top three win cash scaled to
+  their own economy - first place also takes a trophy.
+- **Room bonus.** +5% sale price for every other shop online, up to +25%.
+- Clients reconnect on their own after a blip; the host closing the room tells
+  everyone.
+
+To test on one machine, give each tab its own save with `?profile=name`
+(e.g. `?profile=a` and `?profile=b`).
 
 PeerJS loads from a CDN the first time someone opens a room, so single player
 still works with no network at all. It is a game for people you know - nothing
-is validated against cheating, and the room code is the whole security model.
+off the wire can break your save, but nothing is validated against cheating
+either, and the room code is the whole security model.
 
 ### The Kirkin line
 
