@@ -4,7 +4,7 @@
 // One plain, JSON-serialisable object. Nothing in here knows about the DOM, and
 // every system mutates it through small helpers so saving is just JSON.stringify.
 
-import { STARTER_BLUEPRINTS } from '../data/blueprints.js';
+import { STARTER_BLUEPRINTS, BP_BY_ID } from '../data/blueprints.js';
 
 export const SAVE_VERSION = 1;
 
@@ -99,6 +99,12 @@ export function migrate(loaded) {
   delete merged.managers;
   for (const key of ['runnerCrate', 'wrenchBlueprint', 'closerKeepBest']) delete merged.cfg[key];
   delete merged.stats.autoRate;
+  // Builds store their name when crafted; when a model is renamed (Stark Vark
+  // became Stark Varg), bring the ones already on the floor up to date. Gifts
+  // keep whatever name the sender gave them.
+  for (const item of [...merged.garage, merged.showroom]) {
+    if (item && !item.gifted && BP_BY_ID[item.bp]) item.name = BP_BY_ID[item.bp].name;
+  }
   return merged;
 }
 

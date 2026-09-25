@@ -112,7 +112,7 @@ export const BLUEPRINTS = [
     desc: 'Ugly, brutal, and the best money-per-part in the shop. Builders know.',
   },
   {
-    id: 'stark_vark', name: 'Stark Vark', kind: 'bike', tier: 3, req: B6(3),
+    id: 'stark_vark', name: 'Stark Varg', kind: 'bike', tier: 3, req: B6(3),
     extra: [{ slot: 'frame', tier: 3, count: 1 }, { slot: 'wheels', tier: 3, count: 1 }, { slot: 'brakes', tier: 3, count: 1 }],
     cash: 250000,
     base: 4.6e6, speed: 96, range: 131, accel: 2.0, demandFloor: 0.42,
@@ -121,12 +121,12 @@ export const BLUEPRINTS = [
   },
 
   {
-    id: 'vark_hunter', name: 'Vark Hunter', kind: 'bike', tier: 3,
+    id: 'vark_hunter', name: 'Varg Hunter', kind: 'bike', tier: 3,
     req: { frame: 3, motor: 4, battery: 3, wheels: 3, brakes: 3, controller: 3 },
     cash: 400000,
     base: 2.6e7, speed: 118, range: 158, accel: 1.9,
     unlock: { lifetime: 1.1e7 },
-    desc: 'Built by a workshop that got tired of people buying Stark Varks. One Hypertech motor in an honest exotic frame, and it eats them alive on the ring road.',
+    desc: 'Built by a workshop that got tired of people buying Stark Vargs. One Hypertech motor in an honest exotic frame, and it eats them alive on the ring road.',
   },
 
   // --- Tier 4: hypertech ----------------------------------------------------
@@ -150,7 +150,7 @@ export const BLUEPRINTS = [
   },
 
   {
-    id: 'stark_vark_gt', name: 'Stark Vark GT', kind: 'bike', tier: 4, req: B6(4),
+    id: 'stark_vark_gt', name: 'Stark Varg GT', kind: 'bike', tier: 4, req: B6(4),
     cash: 4e6,
     base: 2.4e8, speed: 238, range: 402, accel: 1.05,
     unlock: { lifetime: 1.8e8 },

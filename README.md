@@ -62,8 +62,8 @@ it any time from the gear icon.
 | **Network** | Multiplayer rooms (see below). |
 
 **The ladder.** Scrap hacks → parody commuters → performance builds → the
-exotics (including one very shiny trap) → the **Vark Hunter** that exists to
-beat it → **Hypertech**: Stark Vark GT, Tungsten Bull, Carbon Ghost and the
+exotics (including one very shiny trap) → the **Varg Hunter** that exists to
+beat it → **Hypertech**: Stark Varg GT, Tungsten Bull, Carbon Ghost and the
 Tesseract TX flagship → nuclear engine bikes at 3,000 mph → the void and
 fossil endgame. 31 builds in all.
 
